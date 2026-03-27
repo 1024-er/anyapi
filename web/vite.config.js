@@ -72,7 +72,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
-        ...(lowMemory ? { maxParallelFileOps: 1 } : {}),
+        ...(lowMemory ? { maxParallelFileOps: 2 } : {}),
         output: {
           manualChunks: {
             'react-core': ['react', 'react-dom', 'react-router-dom'],
