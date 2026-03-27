@@ -66,7 +66,7 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
     getUnreadKeys,
   } = useNotifications(statusState);
 
-  const { mainNavLinks } = useNavigation(t, docsLink, headerNavModules, currentLang);
+  const { mainNavLinks } = useNavigation(t, docsLink, headerNavModules);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10);

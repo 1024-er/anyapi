@@ -19,24 +19,14 @@ For commercial licensing, please contact support@quantumnous.com
 
 import { useMemo } from 'react';
 
-const i18nToDocsLang = {
-  'zh-CN': 'zh',
-  'zh-TW': 'zh-tw',
-  en: 'en',
-  fr: 'fr',
-  ja: 'ja',
-  ru: 'ru',
-  vi: 'vi',
-};
-
-function buildDocsLink(baseLink, lang) {
+function buildDocsLink(baseLink) {
   if (!baseLink) return '';
-  const docsLang = i18nToDocsLang[lang] || lang?.split('-')[0] || 'en';
   const base = baseLink.replace(/\/+$/, '');
-  return `/${docsLang}${base}`;
+  if (base.startsWith('http')) return base;
+  return `${window.location.origin}${base.startsWith('/') ? '' : '/'}${base}`;
 }
 
-export const useNavigation = (t, docsLink, headerNavModules, currentLang) => {
+export const useNavigation = (t, docsLink, headerNavModules) => {
   const mainNavLinks = useMemo(() => {
     const defaultModules = {
       home: true,
@@ -48,7 +38,7 @@ export const useNavigation = (t, docsLink, headerNavModules, currentLang) => {
 
     const modules = headerNavModules || defaultModules;
 
-    const localizedDocsLink = buildDocsLink(docsLink, currentLang);
+    const localizedDocsLink = buildDocsLink(docsLink);
 
     const allLinks = [
       {
@@ -96,7 +86,7 @@ export const useNavigation = (t, docsLink, headerNavModules, currentLang) => {
       }
       return modules[link.itemKey] === true;
     });
-  }, [t, docsLink, headerNavModules, currentLang]);
+  }, [t, docsLink, headerNavModules]);
 
   return {
     mainNavLinks,

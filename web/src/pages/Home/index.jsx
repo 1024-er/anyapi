@@ -705,14 +705,11 @@ const Home = () => {
   const [homePageContent, setHomePageContent] = useState('');
   const [noticeVisible, setNoticeVisible] = useState(false);
   const isMobile = useIsMobile();
-  const rawDocsLink = statusState?.status?.docs_link || '';
-
-  const i18nToDocsLang = {
-    'zh-CN': 'zh', 'zh-TW': 'zh-tw', en: 'en', fr: 'fr', ja: 'ja', ru: 'ru', vi: 'vi',
-  };
-  const docsLang = i18nToDocsLang[i18n.language] || i18n.language?.split('-')[0] || 'en';
+  const rawDocsLink = (statusState?.status?.docs_link || '').replace(/\/+$/, '');
   const docsLink = rawDocsLink
-    ? `/${docsLang}/docs`
+    ? rawDocsLink.startsWith('http')
+      ? rawDocsLink
+      : `${window.location.origin}${rawDocsLink.startsWith('/') ? '' : '/'}${rawDocsLink}`
     : '';
 
   const displayHomePageContent = async () => {
