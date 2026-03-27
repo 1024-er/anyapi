@@ -21,7 +21,9 @@ import { useMemo } from 'react';
 
 function buildDocsLink(baseLink) {
   if (!baseLink) return '';
+  console.log('baseLink', baseLink);
   const base = baseLink.replace(/\/+$/, '');
+  console.log('base', base);
   if (base.startsWith('http')) return base;
   return `${window.location.origin}${base.startsWith('/') ? '' : '/'}${base}`;
 }
@@ -39,7 +41,7 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
     const modules = headerNavModules || defaultModules;
 
     const localizedDocsLink = buildDocsLink(docsLink);
-
+    console.log('localizedDocsLink', localizedDocsLink);
     const allLinks = [
       {
         text: t('首页'),
@@ -72,7 +74,7 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
         to: '/about',
       },
     ];
-
+    console.log(allLinks);
     // 根据配置过滤导航链接
     return allLinks.filter((link) => {
       if (link.itemKey === 'docs') {
