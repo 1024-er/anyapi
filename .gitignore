@@ -19,7 +19,7 @@ tiktoken_cache
 .gocache
 .gomodcache/
 .cache
-web/bun.lock
+# web/bun.lock 需要提交（Dockerfile 依赖它锁定前端依赖版本）
 plans
 .claude
 
