@@ -1,0 +1,109 @@
+---
+title: macOS 配置指南
+description: macOS 系统安装和配置 AI 编程工具指南
+---
+
+## Step 1: 安装 Node.js 环境
+
+**方法一：使用 Homebrew 安装（推荐）**
+
+```bash
+brew install node
+```
+
+如果未安装 Homebrew，可以先安装它：
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+**方法二：官网下载**
+
+1. 访问 [https://nodejs.org](https://nodejs.org)
+2. 下载 LTS 版本的 .pkg 文件并安装
+
+**验证安装是否成功**
+
+```bash
+node --version
+npm --version
+```
+
+## Step 2: 安装 Claude Code
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+**验证 Claude Code 安装**
+
+```bash
+claude --version
+```
+
+## Step 3: 设置环境变量
+
+**确定你的 Shell 类型**
+
+```bash
+echo $SHELL
+```
+
+macOS Catalina 及以后默认使用 zsh。
+
+**方法一：临时设置（当前会话）**
+
+```bash
+export ANTHROPIC_BASE_URL="https://api.example.com"
+export ANTHROPIC_AUTH_TOKEN="your_api_key"
+```
+
+**方法二：zsh 永久设置（推荐）**
+
+```bash
+echo '' >> ~/.zshrc
+echo '# API config' >> ~/.zshrc
+echo 'export ANTHROPIC_BASE_URL="https://api.example.com"' >> ~/.zshrc
+echo 'export ANTHROPIC_AUTH_TOKEN="your_api_key"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**方法三：配置文件（推荐）**
+
+修改配置文件 `vim ~/.claude/settings.json`
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "替换为您的API Key",
+    "ANTHROPIC_BASE_URL": "https://api.example.com",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1
+  },
+  "permissions": {
+    "allow": [],
+    "deny": []
+  }
+}
+```
+
+**验证环境变量设置**
+
+```bash
+echo $ANTHROPIC_BASE_URL
+echo $ANTHROPIC_AUTH_TOKEN
+```
+
+## Step 4: 开始使用
+
+**启动 Claude Code**
+
+```bash
+claude
+```
+
+**在特定项目中使用**
+
+```bash
+cd ~/Projects/my-project
+claude
+```

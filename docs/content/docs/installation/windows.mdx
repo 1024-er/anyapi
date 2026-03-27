@@ -1,0 +1,64 @@
+---
+title: Windows Setup Guide
+description: Install and configure AI programming tools on Windows
+---
+
+## Step 1: Install Node.js
+
+**Option 1: Download from Official Site (Recommended)**
+
+1. Visit [https://nodejs.org](https://nodejs.org)
+2. Click the "LTS" version to download
+3. Double-click the .msi file after download
+4. Follow the installation wizard with default settings
+
+**Option 2: Using a Package Manager**
+
+```bash
+# Chocolatey
+choco install nodejs
+
+# Scoop
+scoop install nodejs
+```
+
+<Callout>
+Use PowerShell instead of CMD. If you encounter permission issues, try running as Administrator.
+</Callout>
+
+**Verify Installation**
+
+```bash
+node --version
+npm --version
+```
+
+## Step 2: Install Claude Code
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+## Step 3: Set Environment Variables
+
+**Option 1: PowerShell Temporary (Current Session)**
+
+```powershell
+$env:ANTHROPIC_BASE_URL = "https://api.example.com"
+$env:ANTHROPIC_AUTH_TOKEN = "your_api_key"
+```
+
+**Option 2: PowerShell Permanent (User Level)**
+
+```powershell
+[System.Environment]::SetEnvironmentVariable("ANTHROPIC_BASE_URL", "https://api.example.com", [System.EnvironmentVariableTarget]::User)
+[System.Environment]::SetEnvironmentVariable("ANTHROPIC_AUTH_TOKEN", "your_api_key", [System.EnvironmentVariableTarget]::User)
+```
+
+Restart PowerShell for changes to take effect.
+
+## Step 4: Start Using
+
+```bash
+claude
+```

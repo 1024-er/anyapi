@@ -1,0 +1,63 @@
+---
+title: Linux / WSL 配置指南
+description: Linux 和 WSL 系统安装和配置 AI 编程工具指南
+---
+
+## Step 1: 安装 Node.js 环境
+
+**方法一：使用 nvm 安装（推荐）**
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc
+nvm install --lts
+```
+
+**方法二：Debian/Ubuntu**
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+<Callout>
+WSL 用户：确保已安装 WSL2（推荐 Ubuntu 发行版），推荐使用 nvm 方式安装避免权限问题。
+</Callout>
+
+**验证安装是否成功**
+
+```bash
+node --version
+npm --version
+```
+
+## Step 2: 安装 Claude Code
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+## Step 3: 设置环境变量
+
+**方法一：临时设置（当前会话）**
+
+```bash
+export ANTHROPIC_BASE_URL="https://api.example.com"
+export ANTHROPIC_AUTH_TOKEN="your_api_key"
+```
+
+**方法二：bash 永久设置（推荐）**
+
+```bash
+echo '' >> ~/.bashrc
+echo '# API config' >> ~/.bashrc
+echo 'export ANTHROPIC_BASE_URL="https://api.example.com"' >> ~/.bashrc
+echo 'export ANTHROPIC_AUTH_TOKEN="your_api_key"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+## Step 4: 开始使用
+
+```bash
+claude
+```

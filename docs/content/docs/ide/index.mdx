@@ -1,0 +1,49 @@
+---
+title: IDE Integration Guide
+description: Use AI programming tools in your development environment
+---
+
+Choose your AI programming tool and view the corresponding setup guide.
+
+<Cards>
+  <Card title="Cursor" href="/docs/ide/cursor" />
+  <Card title="Cline" href="/docs/ide/cline" />
+  <Card title="Continue" href="/docs/ide/continue" />
+  <Card title="PyCharm" href="/docs/ide/pycharm" />
+  <Card title="Windsurf" href="/docs/ide/windsurf" />
+  <Card title="Codex CLI" href="/docs/ide/codex" />
+</Cards>
+
+## Claude Code CLI
+
+**Install Extension**
+
+1. Open VSCode, press `Ctrl+Shift+X` / `Cmd+Shift+X`
+2. Search for "Claude Code for VS Code"
+3. Install the official extension by Anthropic
+
+**Configure Proxy**
+
+Edit `~/.claude/settings.json` (Mac) or `C:\Users\USERNAME\.claude\config.json` (Windows):
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "your_api_key",
+    "ANTHROPIC_BASE_URL": "https://api.example.com",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1
+  },
+  "permissions": {
+    "allow": [],
+    "deny": []
+  }
+}
+```
+
+## Best Practices
+
+- **Start from project root** — Let Claude Code read project files for more accurate suggestions
+- **Use /help command** — View all available slash commands and features
+- **Use /clear command** — Clear context to start a fresh conversation (reduces token usage)
+- **Use @file references** — Use @filename in conversations to quickly reference project files
+- **Backup important files** — Claude Code can modify files directly, use Git for version control

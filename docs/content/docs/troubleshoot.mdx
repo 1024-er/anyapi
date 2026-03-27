@@ -1,0 +1,51 @@
+---
+title: Troubleshooting
+description: Troubleshooting guide for common AI programming tool issues
+---
+
+## Connection Issues
+
+### Check Environment Variables
+
+Make sure your environment variables are correctly set:
+
+```bash
+echo $ANTHROPIC_BASE_URL
+echo $ANTHROPIC_AUTH_TOKEN
+```
+
+### Check API Key
+
+1. Log into the console to verify key status
+2. Confirm the key has available credits
+3. Try regenerating the key
+
+### Check Network Connection
+
+```bash
+curl -I https://api.example.com/v1/models
+```
+
+## Installation Issues
+
+### npm Permission Error (EACCES)
+
+Use nvm to manage Node.js versions to avoid global install permission issues:
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+nvm install --lts
+npm install -g @anthropic-ai/claude-code
+```
+
+### PowerShell Execution Policy Error
+
+Run PowerShell as Administrator and execute:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+## Still Having Issues?
+
+If the above solutions don't work, please [contact us](/docs/contact) for help.

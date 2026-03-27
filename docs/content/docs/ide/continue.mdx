@@ -1,0 +1,29 @@
+---
+title: Continue Setup Guide
+description: Configure Continue open-source AI coding assistant
+---
+
+## Step 1: Install Continue
+
+1. Open VSCode
+2. Go to Extensions and search for "Continue"
+3. Install the Continue extension
+
+## Step 2: Configure API
+
+Edit `~/.continue/config.yaml` and add:
+
+```yaml
+models:
+  - title: "Claude (Proxy)"
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    apiBase: https://api.example.com
+    apiKey: your_api_key
+```
+
+## Step 3: Start Using
+
+- Press `Ctrl+L` (Mac: `Cmd+L`) to open Continue chat
+- Select code and press `Ctrl+Shift+L` to add context
+- Use `@` to reference files and folders

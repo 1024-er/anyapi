@@ -1,0 +1,29 @@
+---
+title: Continue 配置指南
+description: 配置 Continue 开源 AI 编程助手
+---
+
+## Step 1: 安装 Continue
+
+1. 打开 VSCode
+2. 进入扩展搜索 "Continue"
+3. 安装 Continue 扩展
+
+## Step 2: 配置 API
+
+编辑 `~/.continue/config.yaml`，添加：
+
+```yaml
+models:
+  - title: "Claude (Proxy)"
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    apiBase: https://api.example.com
+    apiKey: your_api_key
+```
+
+## Step 3: 开始使用
+
+- 按 `Ctrl+L`（Mac: `Cmd+L`）打开 Continue 聊天
+- 选中代码后按 `Ctrl+Shift+L` 添加上下文
+- 使用 `@` 引用文件和文件夹

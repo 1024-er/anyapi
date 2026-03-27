@@ -1,0 +1,15 @@
+{
+  "title": "文件",
+  "root": true,
+  "pages": [
+    "index",
+    "---安裝指南---",
+    "installation",
+    "---IDE 整合---",
+    "ide",
+    "---更多---",
+    "faq",
+    "troubleshoot",
+    "contact"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "title": "文档",
+  "root": true,
+  "pages": [
+    "index",
+    "installation",
+    "ide",
+    "---更多---",
+    "faq",
+    "troubleshoot",
+    "contact"
+  ]
+}

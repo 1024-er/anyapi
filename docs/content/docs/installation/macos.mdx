@@ -1,0 +1,100 @@
+---
+title: macOS Setup Guide
+description: Install and configure AI programming tools on macOS
+---
+
+## Step 1: Install Node.js
+
+**Option 1: Using Homebrew (Recommended)**
+
+```bash
+brew install node
+```
+
+If you don't have Homebrew installed:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+**Option 2: Download from Official Site**
+
+1. Visit [https://nodejs.org](https://nodejs.org)
+2. Download and install the LTS version .pkg file
+
+**Verify Installation**
+
+```bash
+node --version
+npm --version
+```
+
+## Step 2: Install Claude Code
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+**Verify Installation**
+
+```bash
+claude --version
+```
+
+## Step 3: Set Environment Variables
+
+**Check your shell type**
+
+```bash
+echo $SHELL
+```
+
+macOS Catalina and later use zsh by default.
+
+**Option 1: Temporary (Current Session)**
+
+```bash
+export ANTHROPIC_BASE_URL="https://api.example.com"
+export ANTHROPIC_AUTH_TOKEN="your_api_key"
+```
+
+**Option 2: Permanent zsh Setup (Recommended)**
+
+```bash
+echo '' >> ~/.zshrc
+echo '# API config' >> ~/.zshrc
+echo 'export ANTHROPIC_BASE_URL="https://api.example.com"' >> ~/.zshrc
+echo 'export ANTHROPIC_AUTH_TOKEN="your_api_key"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Option 3: Config File (Recommended)**
+
+Edit `~/.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "your_api_key",
+    "ANTHROPIC_BASE_URL": "https://api.example.com",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1
+  },
+  "permissions": {
+    "allow": [],
+    "deny": []
+  }
+}
+```
+
+## Step 4: Start Using
+
+```bash
+claude
+```
+
+**Use in a specific project**
+
+```bash
+cd ~/Projects/my-project
+claude
+```

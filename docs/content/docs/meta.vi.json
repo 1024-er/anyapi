@@ -1,0 +1,15 @@
+{
+  "title": "Tài liệu",
+  "root": true,
+  "pages": [
+    "index",
+    "---Hướng dẫn cài đặt---",
+    "installation",
+    "---Tích hợp IDE---",
+    "ide",
+    "---Thêm---",
+    "faq",
+    "troubleshoot",
+    "contact"
+  ]
+}

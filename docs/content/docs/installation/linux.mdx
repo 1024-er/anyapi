@@ -1,0 +1,63 @@
+---
+title: Linux / WSL Setup Guide
+description: Install and configure AI programming tools on Linux and WSL
+---
+
+## Step 1: Install Node.js
+
+**Option 1: Using nvm (Recommended)**
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc
+nvm install --lts
+```
+
+**Option 2: Debian/Ubuntu**
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+<Callout>
+WSL users: Make sure you have WSL2 installed (Ubuntu recommended). Use nvm to avoid permission issues.
+</Callout>
+
+**Verify Installation**
+
+```bash
+node --version
+npm --version
+```
+
+## Step 2: Install Claude Code
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+## Step 3: Set Environment Variables
+
+**Option 1: Temporary (Current Session)**
+
+```bash
+export ANTHROPIC_BASE_URL="https://api.example.com"
+export ANTHROPIC_AUTH_TOKEN="your_api_key"
+```
+
+**Option 2: Permanent bash Setup (Recommended)**
+
+```bash
+echo '' >> ~/.bashrc
+echo '# API config' >> ~/.bashrc
+echo 'export ANTHROPIC_BASE_URL="https://api.example.com"' >> ~/.bashrc
+echo 'export ANTHROPIC_AUTH_TOKEN="your_api_key"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+## Step 4: Start Using
+
+```bash
+claude
+```

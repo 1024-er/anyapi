@@ -1,0 +1,80 @@
+import { defineI18n } from "fumadocs-core/i18n"
+import { defineI18nUI } from "fumadocs-ui/i18n"
+
+export const i18n = defineI18n({
+  defaultLanguage: "en",
+  languages: ["en", "zh", "zh-tw", "fr", "ru", "ja", "vi"],
+})
+
+export const i18nUI = defineI18nUI(i18n, {
+  en: {
+    displayName: "English",
+    search: "Search documentation...",
+    toc: "On This Page",
+    lastUpdate: "Last updated on",
+    chooseTheme: "Choose theme",
+    nextPage: "Next",
+    previousPage: "Previous",
+    tocNoHeadings: "No headings",
+  },
+  zh: {
+    displayName: "简体中文",
+    search: "搜索文档...",
+    toc: "本页内容",
+    lastUpdate: "最后更新于",
+    chooseTheme: "切换主题",
+    nextPage: "下一页",
+    previousPage: "上一页",
+    tocNoHeadings: "暂无标题",
+  },
+  "zh-tw": {
+    displayName: "繁體中文",
+    search: "搜尋文件...",
+    toc: "本頁內容",
+    lastUpdate: "最後更新於",
+    chooseTheme: "切換主題",
+    nextPage: "下一頁",
+    previousPage: "上一頁",
+    tocNoHeadings: "暫無標題",
+  },
+  fr: {
+    displayName: "Français",
+    search: "Rechercher...",
+    toc: "Sur cette page",
+    lastUpdate: "Dernière mise à jour",
+    chooseTheme: "Choisir le thème",
+    nextPage: "Suivant",
+    previousPage: "Précédent",
+    tocNoHeadings: "Aucun titre",
+  },
+  ru: {
+    displayName: "Русский",
+    search: "Поиск документации...",
+    toc: "На этой странице",
+    lastUpdate: "Последнее обновление",
+    chooseTheme: "Выбрать тему",
+    nextPage: "Далее",
+    previousPage: "Назад",
+    tocNoHeadings: "Нет заголовков",
+  },
+  ja: {
+    displayName: "日本語",
+    search: "ドキュメントを検索...",
+    toc: "目次",
+    lastUpdate: "最終更新日",
+    chooseTheme: "テーマ",
+    nextPage: "次のページ",
+    previousPage: "前のページ",
+    tocNoHeadings: "見出しなし",
+  },
+  vi: {
+    displayName: "Tiếng Việt",
+    search: "Tìm kiếm tài liệu...",
+    toc: "Trên trang này",
+    lastUpdate: "Cập nhật lần cuối",
+    chooseTheme: "Chọn giao diện",
+    nextPage: "Tiếp theo",
+    previousPage: "Trước đó",
+    tocNoHeadings: "Không có tiêu đề",
+  },
+})

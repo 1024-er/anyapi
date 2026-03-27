@@ -1,0 +1,301 @@
+@import "tailwindcss";
+@import "fumadocs-ui/style.css";
+
+/* ─── Light mode ───────────────────────────────────────────────────────────── */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.13 0.004 285);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.13 0.004 285);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.13 0.004 285);
+  --primary: oklch(0.55 0.20 264);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.96 0.008 264);
+  --secondary-foreground: oklch(0.36 0.08 264);
+  --muted: oklch(0.96 0.004 264);
+  --muted-foreground: oklch(0.50 0.02 264);
+  --accent: oklch(0.93 0.025 264);
+  --accent-foreground: oklch(0.36 0.08 264);
+  --destructive: oklch(0.577 0.245 27);
+  --border: oklch(0.91 0.008 264);
+  --input: oklch(0.91 0.008 264);
+  --ring: oklch(0.55 0.20 264);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.98 0.004 264);
+  --sidebar-foreground: oklch(0.13 0.004 285);
+  --sidebar-border: oklch(0.90 0.008 264);
+}
+
+/* ─── Dark mode ────────────────────────────────────────────────────────────── */
+.dark {
+  --background: oklch(0.09 0.004 264);
+  --foreground: oklch(0.97 0 0);
+  --card: oklch(0.13 0.006 264);
+  --card-foreground: oklch(0.97 0 0);
+  --popover: oklch(0.13 0.006 264);
+  --popover-foreground: oklch(0.97 0 0);
+  --primary: oklch(0.62 0.20 264);
+  --primary-foreground: oklch(0.09 0.004 264);
+  --secondary: oklch(0.20 0.015 264);
+  --secondary-foreground: oklch(0.97 0 0);
+  --muted: oklch(0.20 0.015 264);
+  --muted-foreground: oklch(0.60 0.02 264);
+  --accent: oklch(0.22 0.025 264);
+  --accent-foreground: oklch(0.97 0 0);
+  --destructive: oklch(0.70 0.19 22);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 10%);
+  --ring: oklch(0.62 0.20 264);
+  --sidebar: oklch(0.11 0.005 264);
+  --sidebar-foreground: oklch(0.97 0 0);
+  --sidebar-border: oklch(1 0 0 / 6%);
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.light):not(.dark) {
+    --background: oklch(0.09 0.004 264);
+    --foreground: oklch(0.97 0 0);
+    --card: oklch(0.13 0.006 264);
+    --card-foreground: oklch(0.97 0 0);
+    --popover: oklch(0.13 0.006 264);
+    --popover-foreground: oklch(0.97 0 0);
+    --primary: oklch(0.62 0.20 264);
+    --primary-foreground: oklch(0.09 0.004 264);
+    --secondary: oklch(0.20 0.015 264);
+    --secondary-foreground: oklch(0.97 0 0);
+    --muted: oklch(0.20 0.015 264);
+    --muted-foreground: oklch(0.60 0.02 264);
+    --accent: oklch(0.22 0.025 264);
+    --accent-foreground: oklch(0.97 0 0);
+    --destructive: oklch(0.70 0.19 22);
+    --border: oklch(1 0 0 / 8%);
+    --input: oklch(1 0 0 / 10%);
+    --ring: oklch(0.62 0.20 264);
+    --sidebar: oklch(0.11 0.005 264);
+    --sidebar-foreground: oklch(0.97 0 0);
+    --sidebar-border: oklch(1 0 0 / 6%);
+    color-scheme: dark;
+  }
+}
+
+/* ─── Override Fumadocs color tokens ───────────────────────────────────────── */
+:root {
+  --fd-background: oklch(1 0 0);
+  --fd-background-secondary: oklch(0.98 0.004 264);
+  --fd-foreground: oklch(0.13 0.004 285);
+  --fd-muted-foreground: oklch(0.50 0.02 264);
+  --fd-card: oklch(1 0 0);
+  --fd-card-foreground: oklch(0.13 0.004 285);
+  --fd-border: oklch(0.91 0.008 264);
+  --fd-primary: oklch(0.55 0.20 264);
+  --fd-primary-foreground: oklch(1 0 0);
+  --fd-accent: oklch(0.93 0.025 264);
+  --fd-accent-foreground: oklch(0.36 0.08 264);
+  --fd-sidebar-background: oklch(0.98 0.004 264);
+  --fd-sidebar-border: oklch(0.90 0.008 264);
+}
+
+.dark {
+  --fd-background: oklch(0.09 0.004 264);
+  --fd-background-secondary: oklch(0.11 0.005 264);
+  --fd-foreground: oklch(0.97 0 0);
+  --fd-muted-foreground: oklch(0.60 0.02 264);
+  --fd-card: oklch(0.13 0.006 264);
+  --fd-card-foreground: oklch(0.97 0 0);
+  --fd-border: oklch(1 0 0 / 8%);
+  --fd-primary: oklch(0.62 0.20 264);
+  --fd-primary-foreground: oklch(0.09 0.004 264);
+  --fd-accent: oklch(0.22 0.025 264);
+  --fd-accent-foreground: oklch(0.97 0 0);
+  --fd-sidebar-background: oklch(0.11 0.005 264);
+  --fd-sidebar-border: oklch(1 0 0 / 6%);
+}
+
+/* ─── Typography ───────────────────────────────────────────────────────────── */
+:root,
+.light,
+.dark,
+[data-theme] {
+  --fd-font-family: var(--font-dm-sans), "Helvetica Neue", Arial,
+    "Microsoft YaHei", sans-serif;
+  --fd-font-family-display: var(--font-signika), var(--font-dm-sans),
+    sans-serif;
+  --fd-font-family-mono: ui-monospace, SFMono-Regular,
+    Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* ─── Page background ──────────────────────────────────────────────────────── */
+.fumadocs-ui-root,
+.fumadocs-doc {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--fd-font-family);
+}
+
+/* ─── Sidebar ──────────────────────────────────────────────────────────────── */
+[data-docs-sidebar],
+.fd-sidebar {
+  background-color: var(--sidebar) !important;
+  border-color: var(--sidebar-border) !important;
+  font-family: var(--fd-font-family);
+  font-size: 0.875rem;
+}
+
+/* ─── Nav bar ──────────────────────────────────────────────────────────────── */
+[data-docs-nav],
+.fd-nav {
+  background-color: var(--background) !important;
+  border-color: var(--border) !important;
+  font-family: var(--fd-font-family);
+}
+
+/* ─── Content area ─────────────────────────────────────────────────────────── */
+.fd-page,
+.fd-page .prose {
+  font-family: var(--fd-font-family);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--foreground);
+}
+
+/* Headings */
+.fd-page h1,
+.fd-page h2,
+.fd-page h3,
+.fd-page h4,
+.fd-page h5,
+.fd-page h6 {
+  font-family: var(--fd-font-family);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+/* Code blocks */
+.fd-page pre,
+.fd-page code {
+  font-family: var(--fd-font-family-mono);
+  font-size: 0.875rem;
+  background-color: var(--muted);
+  color: var(--foreground);
+}
+
+.fd-page pre {
+  background-color: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+}
+
+.dark .fd-page pre {
+  background-color: oklch(0.12 0.006 264) !important;
+}
+
+/* Inline code */
+.fd-page :not(pre) > code {
+  background-color: var(--muted) !important;
+  color: var(--primary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.25rem !important;
+  padding: 0.1em 0.35em !important;
+  font-size: 0.85em !important;
+}
+
+/* ─── TOC sidebar ──────────────────────────────────────────────────────────── */
+[data-docs-toc],
+.fd-toc {
+  font-family: var(--fd-font-family);
+  font-size: 0.8125rem;
+}
+
+[data-docs-toc] [data-active="true"],
+.fd-toc [aria-current="true"] {
+  color: var(--primary) !important;
+}
+
+/* ─── Callouts / admonitions ───────────────────────────────────────────────── */
+[data-callout] {
+  border-radius: var(--radius) !important;
+  border-color: var(--border) !important;
+  background-color: var(--muted) !important;
+}
+
+/* ─── Links ────────────────────────────────────────────────────────────────── */
+.fd-page .prose a:not([class*="inline-flex"]),
+.fd-page a:not([class*="inline-flex"]) {
+  color: var(--primary);
+  text-decoration-color: oklch(from var(--primary) l c h / 0.4);
+  text-underline-offset: 3px;
+}
+
+.fd-page .prose a:not([class*="inline-flex"]):hover,
+.fd-page a:not([class*="inline-flex"]):hover {
+  text-decoration-color: var(--primary);
+}
+
+/* ─── Tables ───────────────────────────────────────────────────────────────── */
+.fd-page table {
+  font-family: var(--fd-font-family);
+  font-size: 0.875rem;
+  border-color: var(--border);
+}
+
+.fd-page thead th {
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+/* ─── Search dialog ────────────────────────────────────────────────────────── */
+[data-search-overlay],
+.fd-search {
+  font-family: var(--fd-font-family);
+  background-color: var(--popover) !important;
+  border-color: var(--border) !important;
+}
+
+/* ─── Breadcrumbs ──────────────────────────────────────────────────────────── */
+[data-docs-breadcrumb],
+.fd-breadcrumb {
+  font-family: var(--fd-font-family);
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+/* ─── Page navigation (prev/next) ──────────────────────────────────────────── */
+[data-docs-page-nav],
+.fd-page-nav {
+  font-family: var(--fd-font-family);
+  border-color: var(--border);
+}
+
+/* ─── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted-foreground);
+  opacity: 0.3;
+}
+
+[data-docs-sidebar] ::-webkit-scrollbar,
+[data-docs-toc] ::-webkit-scrollbar {
+  width: 4px;
+}
+[data-docs-sidebar] ::-webkit-scrollbar-thumb,
+[data-docs-toc] ::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 99px;
+}

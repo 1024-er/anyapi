@@ -1,0 +1,15 @@
+{
+  "title": "ドキュメント",
+  "root": true,
+  "pages": [
+    "index",
+    "---インストール---",
+    "installation",
+    "---IDE 連携---",
+    "ide",
+    "---その他---",
+    "faq",
+    "troubleshoot",
+    "contact"
+  ]
+}

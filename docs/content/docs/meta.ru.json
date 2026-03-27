@@ -1,0 +1,15 @@
+{
+  "title": "Документация",
+  "root": true,
+  "pages": [
+    "index",
+    "---Установка---",
+    "installation",
+    "---Интеграция с IDE---",
+    "ide",
+    "---Дополнительно---",
+    "faq",
+    "troubleshoot",
+    "contact"
+  ]
+}

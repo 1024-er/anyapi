@@ -1,0 +1,51 @@
+---
+title: 故障排除
+description: AI 编程工具常见问题的故障排除指南
+---
+
+## 连接问题
+
+### 检查环境变量
+
+确保环境变量正确设置：
+
+```bash
+echo $ANTHROPIC_BASE_URL
+echo $ANTHROPIC_AUTH_TOKEN
+```
+
+### 检查 API 密钥
+
+1. 登录控制台确认密钥状态
+2. 确认密钥有可用额度
+3. 尝试重新生成密钥
+
+### 检查网络连接
+
+```bash
+curl -I https://api.example.com/v1/models
+```
+
+## 安装问题
+
+### npm 权限错误 (EACCES)
+
+使用 nvm 管理 Node.js 版本可以避免全局安装的权限问题：
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+nvm install --lts
+npm install -g @anthropic-ai/claude-code
+```
+
+### PowerShell 执行策略错误
+
+以管理员身份运行 PowerShell，执行：
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+## 仍有问题？
+
+如果以上方法无法解决问题，请[联系我们](/docs/contact)获取帮助。

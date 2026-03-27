@@ -1,0 +1,15 @@
+{
+  "title": "Documentation",
+  "root": true,
+  "pages": [
+    "index",
+    "---Guide d'installation---",
+    "installation",
+    "---Intégration IDE---",
+    "ide",
+    "---Plus---",
+    "faq",
+    "troubleshoot",
+    "contact"
+  ]
+}
