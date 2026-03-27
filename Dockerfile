@@ -1,17 +1,18 @@
-# anyapi 主程序（www.anyapi.pro）：内嵌 web 前端 + API。生产环境建议在宿主机用 Nginx 反代 HTTPS 到 127.0.0.1:3000
-FROM oven/bun:latest AS builder
+# anyapi 主程序（www.anyapi.pro）：内嵌 web 前端 + API
+# 前端构建改用 node（bun 在低内存 VPS 上 OOM 137）
+FROM node:22-bookworm-slim AS builder
 
-# 降低 Vite/Rollup 并行度与进程数，减轻 Docker 构建时 OOM（宿主机可在 Docker Desktop 里调高内存上限）
-ENV VITE_LOW_MEMORY=1 \
-    GOMAXPROCS=2
+ENV VITE_LOW_MEMORY=1
 
 WORKDIR /build
-COPY web/package.json .
-COPY web/bun.lock .
-RUN bun install
+COPY web/package.json web/bun.lock ./
+RUN npm install --legacy-peer-deps
 COPY ./web .
 COPY ./VERSION .
-RUN DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION=$(cat VERSION) bun run build
+RUN DISABLE_ESLINT_PLUGIN='true' \
+    VITE_REACT_APP_VERSION=$(cat VERSION) \
+    NODE_OPTIONS="--max-old-space-size=1536" \
+    npx vite build
 
 FROM golang:alpine AS builder2
 ENV GO111MODULE=on CGO_ENABLED=0
