@@ -19,15 +19,6 @@ For commercial licensing, please contact support@quantumnous.com
 
 import { useMemo } from 'react';
 
-function buildDocsLink(baseLink) {
-  if (!baseLink) return '';
-  console.log('baseLink', baseLink);
-  const base = baseLink.replace(/\/+$/, '');
-  console.log('base', base);
-  if (base.startsWith('http')) return base;
-  return `${window.location.origin}${base.startsWith('/') ? '' : '/'}${base}`;
-}
-
 export const useNavigation = (t, docsLink, headerNavModules) => {
   const mainNavLinks = useMemo(() => {
     const defaultModules = {
@@ -40,8 +31,6 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
 
     const modules = headerNavModules || defaultModules;
 
-    const localizedDocsLink = buildDocsLink(docsLink);
-    console.log('localizedDocsLink', localizedDocsLink);
     const allLinks = [
       {
         text: t('首页'),
@@ -64,7 +53,7 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
               text: t('文档'),
               itemKey: 'docs',
               isExternal: true,
-              externalLink: localizedDocsLink,
+              externalLink: docsLink,
             },
           ]
         : []),

@@ -85,7 +85,7 @@ const PageLayout = () => {
     location.pathname !== '/console/playground';
 
   const isConsoleRoute = location.pathname.startsWith('/console');
-  const isAuthRoute = location.pathname === '/login' || location.pathname === '/register';
+  const isAuthRoute = ['/login', '/register', '/reset', '/user/reset'].includes(location.pathname);
   const showTopHeader = !isAuthRoute && (!isConsoleRoute || isMobile);
   const showSider = isConsoleRoute && (!isMobile || drawerOpen);
 

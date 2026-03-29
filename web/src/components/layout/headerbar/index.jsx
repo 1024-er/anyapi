@@ -6,6 +6,8 @@ import { useHeaderBar } from '../../../hooks/common/useHeaderBar';
 import { useNotifications } from '../../../hooks/common/useNotifications';
 import { useNavigation } from '../../../hooks/common/useNavigation';
 import NoticeModal from '../NoticeModal';
+import NotificationButton from './NotificationButton';
+import NewYearButton from './NewYearButton';
 import { Dropdown, Button, Tag } from '@douyinfe/semi-ui';
 import { Menu, X, Sun, Moon, Monitor, Languages } from 'lucide-react';
 
@@ -190,6 +192,15 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
 
           {/* Actions */}
           <div className='flex items-center gap-2'>
+            {/* New Year button */}
+            <NewYearButton isNewYear={isNewYear} />
+
+            {/* Notification button */}
+            <NotificationButton
+              unreadCount={unreadCount}
+              onNoticeOpen={handleNoticeOpen}
+              t={t}
+            />
             {/* Theme toggle */}
             <Dropdown
               position='bottomRight'
@@ -251,6 +262,7 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
                 <Languages size={16} />
               </button>
             </Dropdown>
+
 
             {/* Auth buttons */}
             {userState.user ? (
