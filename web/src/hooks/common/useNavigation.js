@@ -63,7 +63,6 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
         to: '/about',
       },
     ];
-    console.log(allLinks);
     // 根据配置过滤导航链接
     return allLinks.filter((link) => {
       if (link.itemKey === 'docs') {
