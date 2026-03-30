@@ -82,6 +82,7 @@ const SystemSetting = () => {
     TurnstileSecretKey: '',
     RegisterEnabled: '',
     RegisterRequireInviteCode: '',
+    EmailOnlyRegisterEnabled: '',
     'passkey.enabled': '',
     'passkey.rp_display_name': '',
     'passkey.rp_id': '',
@@ -180,6 +181,7 @@ const SystemSetting = () => {
           case 'TelegramOAuthEnabled':
           case 'RegisterEnabled':
           case 'RegisterRequireInviteCode':
+          case 'EmailOnlyRegisterEnabled':
           case 'TurnstileCheckEnabled':
           case 'EmailDomainRestrictionEnabled':
           case 'EmailAliasRestrictionEnabled':
@@ -1025,6 +1027,15 @@ const SystemSetting = () => {
                         }
                       >
                         {t('允许新用户注册')}
+                      </Form.Checkbox>
+                      <Form.Checkbox
+                        field='EmailOnlyRegisterEnabled'
+                        noLabel
+                        onChange={(e) =>
+                          handleCheckboxChange('EmailOnlyRegisterEnabled', e)
+                        }
+                      >
+                        {t('仅允许邮箱验证码注册')}
                       </Form.Checkbox>
                       <Form.Checkbox
                         field='RegisterRequireInviteCode'

@@ -133,21 +133,17 @@ func Register(c *gin.Context) {
 		common.ApiErrorI18n(c, i18n.MsgUserRegisterDisabled)
 		return
 	}
-	if !common.PasswordRegisterEnabled {
-		common.ApiErrorI18n(c, i18n.MsgUserPasswordRegisterDisabled)
-		return
-	}
+
 	var user model.User
 	err := json.NewDecoder(c.Request.Body).Decode(&user)
 	if err != nil {
 		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
 		return
 	}
-	if err := common.Validate.Struct(&user); err != nil {
-		common.ApiErrorI18n(c, i18n.MsgUserInputInvalid, map[string]any{"Error": err.Error()})
-		return
-	}
-	if common.EmailVerificationEnabled {
+
+	isEmailOnly := common.EmailOnlyRegisterEnabled || (common.EmailVerificationEnabled && user.Username == "")
+
+	if isEmailOnly {
 		if user.Email == "" || user.VerificationCode == "" {
 			common.ApiErrorI18n(c, i18n.MsgUserEmailVerificationRequired)
 			return
@@ -156,8 +152,65 @@ func Register(c *gin.Context) {
 			common.ApiErrorI18n(c, i18n.MsgUserVerificationCodeError)
 			return
 		}
+	} else {
+		if !common.PasswordRegisterEnabled {
+			common.ApiErrorI18n(c, i18n.MsgUserPasswordRegisterDisabled)
+			return
+		}
+		if err := common.Validate.Struct(&user); err != nil {
+			common.ApiErrorI18n(c, i18n.MsgUserInputInvalid, map[string]any{"Error": err.Error()})
+			return
+		}
+		if common.EmailVerificationEnabled {
+			if user.Email == "" || user.VerificationCode == "" {
+				common.ApiErrorI18n(c, i18n.MsgUserEmailVerificationRequired)
+				return
+			}
+			if !common.VerifyCodeWithKey(user.Email, user.VerificationCode, common.EmailVerificationPurpose) {
+				common.ApiErrorI18n(c, i18n.MsgUserVerificationCodeError)
+				return
+			}
+		}
 	}
-	exist, err := model.CheckUserExistOrDeleted(user.Username, user.Email)
+
+	affCode := user.AffCode
+	inviterId, _ := model.GetUserIdByAffCode(affCode)
+	if common.RegisterRequireInviteCode && inviterId == 0 {
+		common.ApiErrorI18n(c, i18n.MsgInvalidInviteCode)
+		return
+	}
+
+	var cleanUser model.User
+	if isEmailOnly {
+		autoUsername := "user_" + common.GetRandomString(10)
+		autoPassword := common.GetRandomString(16)
+		emailPrefix := strings.Split(user.Email, "@")[0]
+		displayName := emailPrefix
+		if len(displayName) > 20 {
+			displayName = displayName[:20]
+		}
+		cleanUser = model.User{
+			Username:    autoUsername,
+			Password:    autoPassword,
+			DisplayName: displayName,
+			Email:       user.Email,
+			InviterId:   inviterId,
+			Role:        common.RoleCommonUser,
+		}
+	} else {
+		cleanUser = model.User{
+			Username:    user.Username,
+			Password:    user.Password,
+			DisplayName: user.Username,
+			InviterId:   inviterId,
+			Role:        common.RoleCommonUser,
+		}
+		if common.EmailVerificationEnabled {
+			cleanUser.Email = user.Email
+		}
+	}
+
+	exist, err := model.CheckUserExistOrDeleted(cleanUser.Username, cleanUser.Email)
 	if err != nil {
 		common.ApiErrorI18n(c, i18n.MsgDatabaseError)
 		common.SysLog(fmt.Sprintf("CheckUserExistOrDeleted error: %v", err))
@@ -167,34 +220,17 @@ func Register(c *gin.Context) {
 		common.ApiErrorI18n(c, i18n.MsgUserExists)
 		return
 	}
-	affCode := user.AffCode // this code is the inviter's code, not the user's own code
-	inviterId, _ := model.GetUserIdByAffCode(affCode)
-	if common.RegisterRequireInviteCode && inviterId == 0 {
-		common.ApiErrorI18n(c, i18n.MsgInvalidInviteCode)
-		return
-	}
-	cleanUser := model.User{
-		Username:    user.Username,
-		Password:    user.Password,
-		DisplayName: user.Username,
-		InviterId:   inviterId,
-		Role:        common.RoleCommonUser, // 明确设置角色为普通用户
-	}
-	if common.EmailVerificationEnabled {
-		cleanUser.Email = user.Email
-	}
+
 	if err := cleanUser.Insert(inviterId); err != nil {
 		common.ApiError(c, err)
 		return
 	}
 
-	// 获取插入后的用户ID
 	var insertedUser model.User
 	if err := model.DB.Where("username = ?", cleanUser.Username).First(&insertedUser).Error; err != nil {
 		common.ApiErrorI18n(c, i18n.MsgUserRegisterFailed)
 		return
 	}
-	// 生成默认令牌
 	if constant.GenerateDefaultToken {
 		key, err := common.GenerateKey()
 		if err != nil {
@@ -202,15 +238,14 @@ func Register(c *gin.Context) {
 			common.SysLog("failed to generate token key: " + err.Error())
 			return
 		}
-		// 生成默认令牌
 		token := model.Token{
-			UserId:             insertedUser.Id, // 使用插入后的用户ID
+			UserId:             insertedUser.Id,
 			Name:               cleanUser.Username + "的初始令牌",
 			Key:                key,
 			CreatedTime:        common.GetTimestamp(),
 			AccessedTime:       common.GetTimestamp(),
-			ExpiredTime:        -1,     // 永不过期
-			RemainQuota:        500000, // 示例额度
+			ExpiredTime:        -1,
+			RemainQuota:        500000,
 			UnlimitedQuota:     true,
 			ModelLimitsEnabled: false,
 		}

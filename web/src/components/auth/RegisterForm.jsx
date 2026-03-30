@@ -1,22 +1,3 @@
-/*
-Copyright (C) 2025 QuantumNous
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-For commercial licensing, please contact support@quantumnous.com
-*/
-
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -131,6 +112,7 @@ const RegisterForm = () => {
     }
   }, [statusState?.status]);
   const requireInviteCode = status?.register_require_invite_code || false;
+  const emailOnlyRegister = status?.email_only_register || status?.email_verification || false;
   const hasCustomOAuthProviders =
     (status.custom_oauth_providers || []).length > 0;
   const hasOAuthRegisterOptions = Boolean(
@@ -218,43 +200,55 @@ const RegisterForm = () => {
   }
 
   async function handleSubmit(e) {
-    if (password.length < 8) {
-      showInfo('密码长度不得小于 8 位！');
-      return;
-    }
-    if (password !== password2) {
-      showInfo('两次输入的密码不一致');
-      return;
-    }
-    if (username && password) {
-      const inviteCode = inputs.invite_code || localStorage.getItem('aff') || affCode || '';
-      if (requireInviteCode && !inviteCode.trim()) {
-        showInfo(t('请输入邀请码'));
+    if (emailOnlyRegister) {
+      if (!inputs.email) {
+        showInfo(t('请输入邮箱地址'));
         return;
       }
-      if (turnstileEnabled && turnstileToken === '') {
-        showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      if (!inputs.verification_code) {
+        showInfo(t('请输入验证码'));
         return;
       }
-      setRegisterLoading(true);
-      try {
-        inputs.aff_code = inviteCode;
-        const res = await API.post(
-          `/api/user/register?turnstile=${turnstileToken}`,
-          inputs,
-        );
-        const { success, message } = res.data;
-        if (success) {
-          navigate('/login');
-          showSuccess('注册成功！');
-        } else {
-          showError(message);
-        }
-      } catch (error) {
-        showError('注册失败，请重试');
-      } finally {
-        setRegisterLoading(false);
+    } else {
+      if (password.length < 8) {
+        showInfo('密码长度不得小于 8 位！');
+        return;
       }
+      if (password !== password2) {
+        showInfo('两次输入的密码不一致');
+        return;
+      }
+      if (!username || !password) {
+        return;
+      }
+    }
+    const inviteCode = inputs.invite_code || localStorage.getItem('aff') || affCode || '';
+    if (requireInviteCode && !inviteCode.trim()) {
+      showInfo(t('请输入邀请码'));
+      return;
+    }
+    if (turnstileEnabled && turnstileToken === '') {
+      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      return;
+    }
+    setRegisterLoading(true);
+    try {
+      inputs.aff_code = inviteCode;
+      const res = await API.post(
+        `/api/user/register?turnstile=${turnstileToken}`,
+        inputs,
+      );
+      const { success, message } = res.data;
+      if (success) {
+        navigate('/login');
+        showSuccess(t('注册成功！'));
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      showError(t('注册失败，请重试'));
+    } finally {
+      setRegisterLoading(false);
     }
   }
 
@@ -570,34 +564,74 @@ const RegisterForm = () => {
             </div>
             <div className='px-2 py-8'>
               <Form className='space-y-3'>
-                <Form.Input
-                  field='username'
-                  label={t('用户名')}
-                  placeholder={t('请输入用户名')}
-                  name='username'
-                  onChange={(value) => handleChange('username', value)}
-                  prefix={<IconUser />}
-                />
+                {!emailOnlyRegister && (
+                  <>
+                    <Form.Input
+                      field='username'
+                      label={t('用户名')}
+                      placeholder={t('请输入用户名')}
+                      name='username'
+                      onChange={(value) => handleChange('username', value)}
+                      prefix={<IconUser />}
+                    />
+
+                    <Form.Input
+                      field='password'
+                      label={t('密码')}
+                      placeholder={t('输入密码，最短 8 位，最长 20 位')}
+                      name='password'
+                      mode='password'
+                      onChange={(value) => handleChange('password', value)}
+                      prefix={<IconLock />}
+                    />
+
+                    <Form.Input
+                      field='password2'
+                      label={t('确认密码')}
+                      placeholder={t('确认密码')}
+                      name='password2'
+                      mode='password'
+                      onChange={(value) => handleChange('password2', value)}
+                      prefix={<IconLock />}
+                    />
+                  </>
+                )}
 
                 <Form.Input
-                  field='password'
-                  label={t('密码')}
-                  placeholder={t('输入密码，最短 8 位，最长 20 位')}
-                  name='password'
-                  mode='password'
-                  onChange={(value) => handleChange('password', value)}
-                  prefix={<IconLock />}
+                  field='email'
+                  label={t('邮箱')}
+                  placeholder={t('输入邮箱地址')}
+                  name='email'
+                  type='email'
+                  onChange={(value) => handleChange('email', value)}
+                  prefix={<IconMail />}
+                  suffix={
+                    (emailOnlyRegister || showEmailVerification) ? (
+                      <Button
+                        onClick={sendVerificationCode}
+                        loading={verificationCodeLoading}
+                        disabled={disableButton || verificationCodeLoading}
+                      >
+                        {disableButton
+                          ? `${t('重新发送')} (${countdown})`
+                          : t('获取验证码')}
+                      </Button>
+                    ) : undefined
+                  }
                 />
 
-                <Form.Input
-                  field='password2'
-                  label={t('确认密码')}
-                  placeholder={t('确认密码')}
-                  name='password2'
-                  mode='password'
-                  onChange={(value) => handleChange('password2', value)}
-                  prefix={<IconLock />}
-                />
+                {(emailOnlyRegister || showEmailVerification) && (
+                  <Form.Input
+                    field='verification_code'
+                      label={t('验证码')}
+                      placeholder={t('输入验证码')}
+                      name='verification_code'
+                      onChange={(value) =>
+                        handleChange('verification_code', value)
+                      }
+                      prefix={<IconKey />}
+                    />
+                )}
 
                 <Form.Input
                   field='invite_code'
@@ -608,41 +642,6 @@ const RegisterForm = () => {
                   onChange={(value) => handleChange('invite_code', value)}
                   rules={requireInviteCode ? [{ required: true, message: t('请输入邀请码') }] : []}
                 />
-
-                {showEmailVerification && (
-                  <>
-                    <Form.Input
-                      field='email'
-                      label={t('邮箱')}
-                      placeholder={t('输入邮箱地址')}
-                      name='email'
-                      type='email'
-                      onChange={(value) => handleChange('email', value)}
-                      prefix={<IconMail />}
-                      suffix={
-                        <Button
-                          onClick={sendVerificationCode}
-                          loading={verificationCodeLoading}
-                          disabled={disableButton || verificationCodeLoading}
-                        >
-                          {disableButton
-                            ? `${t('重新发送')} (${countdown})`
-                            : t('获取验证码')}
-                        </Button>
-                      }
-                    />
-                    <Form.Input
-                      field='verification_code'
-                      label={t('验证码')}
-                      placeholder={t('输入验证码')}
-                      name='verification_code'
-                      onChange={(value) =>
-                        handleChange('verification_code', value)
-                      }
-                      prefix={<IconKey />}
-                    />
-                  </>
-                )}
 
                 {(hasUserAgreement || hasPrivacyPolicy) && (
                   <div className='pt-4'>
@@ -790,8 +789,7 @@ const RegisterForm = () => {
           style={{ top: '50%', left: '-120px' }}
         />
         <div className='w-full max-w-sm mt-[60px]'>
-          {showEmailRegister ||
-          !hasOAuthRegisterOptions
+          {emailOnlyRegister || showEmailRegister || !hasOAuthRegisterOptions
             ? renderEmailRegisterForm()
             : renderOAuthOptions()}
           {renderWeChatLoginModal()}
