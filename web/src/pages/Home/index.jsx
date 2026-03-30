@@ -405,7 +405,7 @@ function HeroSection({ t, docsLink }) {
 
         <div className='flex flex-col sm:flex-row items-center justify-center gap-3 mb-12'>
           <Link
-            to='/login'
+            to='/register'
             className='inline-flex items-center justify-center gap-2 px-8 h-12 text-base font-medium rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors'
           >
             {t('开始使用')}

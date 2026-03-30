@@ -269,35 +269,28 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
               <div className='hidden md:flex items-center gap-2'>
                 <Link
                   to='/console'
-                  className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-md hover:bg-muted transition-colors'
+                  className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white rounded-md transition-colors'
                 >
                   {t('控制台')}
                 </Link>
                 <button
                   onClick={logout}
-                  className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-md hover:bg-muted transition-colors'
+                  className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white rounded-md transition-colors'
                 >
                   {t('logout')}
                 </button>
               </div>
             ) : (
               <div className='hidden md:flex items-center gap-2'>
-                <Link
-                  to='/login'
-                  className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white rounded-md transition-colors'
-                  style={{ background: 'oklch(0.55 0.20 264)' }}
-                >
-                  {t('控制台')}
-                </Link>
-                {/* {!isSelfUseMode && (
+                {!isSelfUseMode && (
                   <Link
-                    to='/register'
+                    to='/login'
                     className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white rounded-md transition-colors'
                     style={{ background: 'oklch(0.55 0.20 264)' }}
                   >
-                    {t('开始使用')}
+                    {t('登录')}
                   </Link>
-                )} */}
+                )}
               </div>
             )}
 
