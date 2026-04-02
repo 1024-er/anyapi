@@ -54,7 +54,7 @@ import Title from '@douyinfe/semi-ui/lib/es/typography/title';
 import Text from '@douyinfe/semi-ui/lib/es/typography/text';
 import TelegramLoginButton from 'react-telegram-login';
 
-import { IconMail, IconLock, IconKey } from '@douyinfe/semi-icons';
+import { IconGithubLogo, IconMail, IconLock, IconKey } from '@douyinfe/semi-icons';
 import OIDCIcon from '../common/logo/OIDCIcon';
 import WeChatIcon from '../common/logo/WeChatIcon';
 import LinuxDoIcon from '../common/logo/LinuxDoIcon';
@@ -118,6 +118,7 @@ const LoginForm = () => {
 
   const logo = getLogo();
   const systemName = getSystemName();
+  
 
   let affCode = new URLSearchParams(window.location.search).get('aff');
   if (affCode) {
@@ -134,6 +135,13 @@ const LoginForm = () => {
       return {};
     }
   }, [statusState?.status]);
+
+  const registerEnabled = status?.register_enabled !== false;
+  const emailOnlyRegister = status?.email_only_register || false;
+  const passwordRegisterEnabled = status?.password_register_enabled !== false;
+  const canUseEmailRegister =
+    registerEnabled && (emailOnlyRegister || passwordRegisterEnabled);
+  
   const customOAuthProviders = status.custom_oauth_providers || [];
   const googleOAuthProvider = customOAuthProviders.find(isGoogleOAuthProvider);
   const otherCustomOAuthProviders = googleOAuthProvider
@@ -509,61 +517,61 @@ const LoginForm = () => {
     setInputs({ username: '', password: '', wechat_verification_code: '' });
   };
 
-  const renderGoogleGithub = () => {
-    const googleLoading = Boolean(
-      googleOAuthProvider && customOAuthLoading[googleOAuthProvider.slug],
-    );
-    const githubDisabled = githubButtonDisabled || githubLoading;
+  // const renderGoogleGithub = () => {
+  //   const googleLoading = Boolean(
+  //     googleOAuthProvider && customOAuthLoading[googleOAuthProvider.slug],
+  //   );
+  //   const githubDisabled = githubButtonDisabled || githubLoading;
 
-    if (!googleOAuthProvider && !status.github_oauth) {
-      return null;
-    }
+  //   if (!googleOAuthProvider && !status.github_oauth) {
+  //     return null;
+  //   }
 
-    return (
-      <div className='flex items-center justify-center gap-4 py-2'>
-        {googleOAuthProvider && (
-          <button
-            type='button'
-            className={`w-10 h-10 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-white hover:bg-white/10 hover:border-white/20 transition-all group ${
-              googleLoading ? 'opacity-60 cursor-not-allowed' : ''
-            }`}
-            title={t('使用 Google 登录')}
-            disabled={googleLoading}
-            onClick={() => handleCustomOAuthClick(googleOAuthProvider)}
-          >
-            <div className='flex items-center justify-center w-8 h-8 group-hover:scale-110 transition-transform'>
-              <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
-                <path fill='#4285F4' d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'></path>
-                <path fill='#34A853' d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'></path>
-                <path fill='#FBBC05' d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z'></path>
-                <path fill='#EA4335' d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'></path>
-              </svg>
-            </div>
-          </button>
-        )}
+  //   return (
+  //     <div className='flex items-center justify-center gap-4 py-2'>
+  //       {googleOAuthProvider && (
+  //         <button
+  //           type='button'
+  //           className={`w-10 h-10 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-white hover:bg-white/10 hover:border-white/20 transition-all group ${
+  //             googleLoading ? 'opacity-60 cursor-not-allowed' : ''
+  //           }`}
+  //           title={t('使用 Google 登录')}
+  //           disabled={googleLoading}
+  //           onClick={() => handleCustomOAuthClick(googleOAuthProvider)}
+  //         >
+  //           <div className='flex items-center justify-center w-8 h-8 group-hover:scale-110 transition-transform'>
+  //             <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+  //               <path fill='#4285F4' d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'></path>
+  //               <path fill='#34A853' d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'></path>
+  //               <path fill='#FBBC05' d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z'></path>
+  //               <path fill='#EA4335' d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'></path>
+  //             </svg>
+  //           </div>
+  //         </button>
+  //       )}
 
-        {status.github_oauth && (
-          <button
-            type='button'
-            className={`w-10 h-10 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-white hover:bg-white/10 hover:border-white/20 transition-all group ${
-              githubDisabled ? 'opacity-60 cursor-not-allowed' : ''
-            }`}
-            title={t('使用 GitHub 登录')}
-            disabled={githubDisabled}
-            onClick={handleGitHubClick}
-          >
-            <span className='sr-only'>{githubButtonText}</span>
-            <div className='flex items-center justify-center w-8 h-8 group-hover:scale-110 transition-transform'>
-              <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <title>GitHub</title>
-                <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-              </svg>
-            </div>
-          </button>
-        )}
-      </div>
-    );
-  };
+  //       {status.github_oauth && (
+  //         <button
+  //           type='button'
+  //           className={`w-10 h-10 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-white hover:bg-white/10 hover:border-white/20 transition-all group ${
+  //             githubDisabled ? 'opacity-60 cursor-not-allowed' : ''
+  //           }`}
+  //           title={t('使用 GitHub 登录')}
+  //           disabled={githubDisabled}
+  //           onClick={handleGitHubClick}
+  //         >
+  //           <span className='sr-only'>{githubButtonText}</span>
+  //           <div className='flex items-center justify-center w-8 h-8 group-hover:scale-110 transition-transform'>
+  //             <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  //               <title>GitHub</title>
+  //               <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+  //             </svg>
+  //           </div>
+  //         </button>
+  //       )}
+  //     </div>
+  //   );
+  // };
 
   const renderOAuthOptions = () => {
     return (
@@ -874,7 +882,6 @@ const LoginForm = () => {
                     {t('或')}
                   </Divider>
 
-                  {renderGoogleGithub()}
 
                   {/* <div className='mt-4 text-center'>
                     <Button
@@ -887,6 +894,138 @@ const LoginForm = () => {
                       {t('其他登录选项')}
                     </Button>
                   </div> */}
+                  <div className='space-y-3'>
+                    {status.wechat_login && (
+                      <Button
+                        theme='outline'
+                        className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                        type='tertiary'
+                        icon={
+                          <Icon svg={<WeChatIcon />} style={{ color: '#07C160' }} />
+                        }
+                        onClick={onWeChatLoginClicked}
+                        loading={wechatLoading}
+                      >
+                        <span className='ml-3'>{t('使用 微信 继续')}</span>
+                      </Button>
+                    )}
+
+                    {status.github_oauth && (
+                      <Button
+                        theme='outline'
+                        className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                        type='tertiary'
+                        icon={<IconGithubLogo size='large' />}
+                        onClick={handleGitHubClick}
+                        loading={githubLoading}
+                        disabled={githubButtonDisabled}
+                      >
+                        <span className='ml-3'>{githubButtonText}</span>
+                      </Button>
+                    )}
+
+                    {status.discord_oauth && (
+                      <Button
+                        theme='outline'
+                        className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                        type='tertiary'
+                        icon={
+                          <SiDiscord
+                            style={{
+                              color: '#5865F2',
+                              width: '20px',
+                              height: '20px',
+                            }}
+                          />
+                        }
+                        onClick={handleDiscordClick}
+                        loading={discordLoading}
+                      >
+                        <span className='ml-3'>{t('使用 Discord 继续')}</span>
+                      </Button>
+                    )}
+
+                    {status.oidc_enabled && (
+                      <Button
+                        theme='outline'
+                        className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                        type='tertiary'
+                        icon={<OIDCIcon style={{ color: '#1877F2' }} />}
+                        onClick={handleOIDCClick}
+                        loading={oidcLoading}
+                      >
+                        <span className='ml-3'>{t('使用 OIDC 继续')}</span>
+                      </Button>
+                    )}
+
+                    {status.linuxdo_oauth && (
+                      <Button
+                        theme='outline'
+                        className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                        type='tertiary'
+                        icon={
+                          <LinuxDoIcon
+                            style={{
+                              color: '#E95420',
+                              width: '20px',
+                              height: '20px',
+                            }}
+                          />
+                        }
+                        onClick={handleLinuxDOClick}
+                        loading={linuxdoLoading}
+                      >
+                        <span className='ml-3'>{t('使用 LinuxDO 继续')}</span>
+                      </Button>
+                    )}
+
+                    {status.custom_oauth_providers &&
+                      status.custom_oauth_providers.map((provider) => (
+                        <Button
+                          key={provider.slug}
+                          theme='outline'
+                          className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                          type='tertiary'
+                          icon={getOAuthProviderIcon(provider.icon || '', 20)}
+                          onClick={() => handleCustomOAuthClick(provider)}
+                          loading={customOAuthLoading[provider.slug]}
+                        >
+                          <span className='ml-3'>
+                            {t('使用 {{name}} 继续', { name: provider.name })}
+                          </span>
+                        </Button>
+                      ))}
+
+                    {status.telegram_oauth && (
+                      <div className='flex justify-center my-2'>
+                        <TelegramLoginButton
+                          dataOnauth={onTelegramLoginClicked}
+                          botName={status.telegram_bot_name}
+                        />
+                      </div>
+                    )}
+
+                    {canUseEmailRegister && (
+                      <>
+                        <Divider margin='12px' align='center'>
+                          {t('或')}
+                        </Divider>
+
+                        <Button
+                          theme='solid'
+                          type='primary'
+                          className='w-full h-12 flex items-center justify-center bg-black text-white !rounded-full hover:bg-gray-800 transition-colors'
+                          icon={<IconMail size='large' />}
+                          onClick={handleEmailRegisterClick}
+                          loading={emailRegisterLoading}
+                        >
+                          <span className='ml-3'>
+                            {t(emailOnlyRegister ? '使用 邮箱 注册' : '使用 用户名 注册')}
+                          </span>
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </>
               )}
 

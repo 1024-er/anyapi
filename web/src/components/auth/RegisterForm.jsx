@@ -484,11 +484,6 @@ const RegisterForm = () => {
           </div>
 
           <Card className='border-0 !rounded-2xl overflow-hidden'>
-            <div className='flex justify-center pt-6 pb-2'>
-              <Title heading={3} className='text-gray-800 dark:text-gray-200'>
-                {t('注 册')}
-              </Title>
-            </div>
             <div className='px-2 py-8'>
               <div className='space-y-3'>
                 {status.wechat_login && (
@@ -884,11 +879,6 @@ const RegisterForm = () => {
       <div className='flex flex-col items-center'>
         <div className='w-full max-w-md'>
           <Card className='border-0 !rounded-2xl overflow-hidden'>
-            <div className='flex justify-center pt-6 pb-2'>
-              <Title heading={3} className='text-gray-800 dark:text-gray-200'>
-                {t('注 册')}
-              </Title>
-            </div>
             <div className='px-6 py-10 text-center space-y-6'>
               <Text>{t(message)}</Text>
               <Link
