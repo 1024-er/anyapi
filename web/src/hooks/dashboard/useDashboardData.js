@@ -133,7 +133,7 @@ export const useDashboardData = (userState, userDispatch, statusState) => {
       greeting = t('晚上好');
     }
 
-    const username = userState?.user?.username || '';
+    const username = userState?.user?.display_name || '';
     return `👋${greeting}，${username}`;
   }, [t, userState?.user?.username]);
 

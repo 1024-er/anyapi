@@ -195,7 +195,7 @@ const DeploymentsTable = (deploymentsData) => {
           />
         }
         className='rounded-xl overflow-hidden'
-        size='middle'
+        size='default'
         loading={loading || searching}
       />
 

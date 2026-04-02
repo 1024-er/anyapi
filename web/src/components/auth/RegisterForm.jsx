@@ -45,6 +45,7 @@ import { UserContext } from '../../context/User';
 import { StatusContext } from '../../context/Status';
 import { useTranslation } from 'react-i18next';
 import { SiDiscord } from 'react-icons/si';
+import { Loader2 } from 'lucide-react';
 import AuthBrandPanel from './AuthBrandPanel';
 
 const RegisterForm = () => {
@@ -62,6 +63,7 @@ const RegisterForm = () => {
     email: '',
     verification_code: '',
     wechat_verification_code: '',
+    invite_code: '',
   });
   const { username, password, password2 } = inputs;
   const [userState, userDispatch] = useContext(UserContext);
@@ -96,10 +98,7 @@ const RegisterForm = () => {
   const logo = getLogo();
   const systemName = getSystemName();
 
-  let affCode = new URLSearchParams(window.location.search).get('aff');
-  if (affCode) {
-    localStorage.setItem('aff', affCode);
-  }
+  const affCode = new URLSearchParams(window.location.search).get('aff') || '';
 
   const status = useMemo(() => {
     if (statusState?.status) return statusState.status;
@@ -112,7 +111,11 @@ const RegisterForm = () => {
     }
   }, [statusState?.status]);
   const requireInviteCode = status?.register_require_invite_code || false;
-  const emailOnlyRegister = status?.email_only_register || status?.email_verification || false;
+  const registerEnabled = status?.register_enabled !== false;
+  const emailOnlyRegister = status?.email_only_register || false;
+  const passwordRegisterEnabled = status?.password_register_enabled !== false;
+  const canUseEmailRegister =
+    registerEnabled && (emailOnlyRegister || passwordRegisterEnabled);
   const hasCustomOAuthProviders =
     (status.custom_oauth_providers || []).length > 0;
   const hasOAuthRegisterOptions = Boolean(
@@ -124,8 +127,12 @@ const RegisterForm = () => {
       status.telegram_oauth ||
       hasCustomOAuthProviders,
   );
+  const shouldShowEmailRegisterForm =
+    canUseEmailRegister &&
+    (emailOnlyRegister || showEmailRegister || !hasOAuthRegisterOptions);
 
   const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [verificationCodeSent, setVerificationCodeSent] = useState(false);
 
   useEffect(() => {
     setShowEmailVerification(!!status?.email_verification);
@@ -138,6 +145,14 @@ const RegisterForm = () => {
     setHasUserAgreement(status?.user_agreement_enabled || false);
     setHasPrivacyPolicy(status?.privacy_policy_enabled || false);
   }, [status]);
+
+  useEffect(() => {
+    if (!affCode) {
+      return;
+    }
+    localStorage.setItem('aff', affCode);
+    setInputs((prev) => ({ ...prev, invite_code: affCode }));
+  }, [affCode]);
 
   useEffect(() => {
     let countdownInterval = null;
@@ -173,9 +188,14 @@ const RegisterForm = () => {
     }
     setWechatCodeSubmitLoading(true);
     try {
-      const res = await API.get(
-        `/api/oauth/wechat?code=${inputs.wechat_verification_code}`,
-      );
+      const inviteCode = (localStorage.getItem('aff') || affCode || '').trim();
+      const params = new URLSearchParams({
+        code: inputs.wechat_verification_code,
+      });
+      if (inviteCode) {
+        params.set('aff', inviteCode);
+      }
+      const res = await API.get(`/api/oauth/wechat?${params.toString()}`);
       const { success, message, data } = res.data;
       if (success) {
         userDispatch({ type: 'login', payload: data });
@@ -199,13 +219,26 @@ const RegisterForm = () => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit() {
+    const email = inputs.email.trim();
+    const verificationCode = inputs.verification_code.trim();
+    const inviteCode = (
+      inputs.invite_code ||
+      localStorage.getItem('aff') ||
+      affCode ||
+      ''
+    ).trim();
+
     if (emailOnlyRegister) {
-      if (!inputs.email) {
+      if (!email) {
         showInfo(t('请输入邮箱地址'));
         return;
       }
-      if (!inputs.verification_code) {
+      if (!verificationCodeSent) {
+        showInfo(t('请先获取验证码'));
+        return;
+      }
+      if (!verificationCode) {
         showInfo(t('请输入验证码'));
         return;
       }
@@ -221,9 +254,18 @@ const RegisterForm = () => {
       if (!username || !password) {
         return;
       }
+      if (showEmailVerification) {
+        if (!email) {
+          showInfo(t('请输入邮箱地址'));
+          return;
+        }
+        if (!verificationCode) {
+          showInfo(t('请输入验证码'));
+          return;
+        }
+      }
     }
-    const inviteCode = inputs.invite_code || localStorage.getItem('aff') || affCode || '';
-    if (requireInviteCode && !inviteCode.trim()) {
+    if (requireInviteCode && !inviteCode) {
       showInfo(t('请输入邀请码'));
       return;
     }
@@ -231,17 +273,43 @@ const RegisterForm = () => {
       showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
       return;
     }
+
+    const payload = {
+      aff_code: inviteCode,
+    };
+    if (emailOnlyRegister) {
+      payload.email = email;
+      payload.verification_code = verificationCode;
+    } else {
+      payload.username = username;
+      payload.password = password;
+      if (showEmailVerification) {
+        payload.email = email;
+        payload.verification_code = verificationCode;
+      }
+    }
+
     setRegisterLoading(true);
     try {
-      inputs.aff_code = inviteCode;
       const res = await API.post(
         `/api/user/register?turnstile=${turnstileToken}`,
-        inputs,
+        payload,
       );
-      const { success, message } = res.data;
+      const { success, message, data } = res.data;
       if (success) {
-        navigate('/login');
+        if (data) {
+          userDispatch({ type: 'login', payload: data });
+          setUserData(data);
+          updateAPI();
+        }
+        localStorage.removeItem('aff');
+        if (emailOnlyRegister) {
+          sessionStorage.setItem('force_set_login_password', '1');
+        } else {
+          sessionStorage.removeItem('force_set_login_password');
+        }
         showSuccess(t('注册成功！'));
+        navigate('/console');
       } else {
         showError(message);
       }
@@ -253,7 +321,21 @@ const RegisterForm = () => {
   }
 
   const sendVerificationCode = async () => {
-    if (inputs.email === '') return;
+    const email = inputs.email.trim();
+    const inviteCode = (
+      inputs.invite_code ||
+      localStorage.getItem('aff') ||
+      affCode ||
+      ''
+    ).trim();
+    if (!email) {
+      showInfo(t('请输入邮箱地址'));
+      return;
+    }
+    if (requireInviteCode && !inviteCode) {
+      showInfo(t('请输入邀请码'));
+      return;
+    }
     if (turnstileEnabled && turnstileToken === '') {
       showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
       return;
@@ -261,12 +343,13 @@ const RegisterForm = () => {
     setVerificationCodeLoading(true);
     try {
       const res = await API.get(
-        `/api/verification?email=${encodeURIComponent(inputs.email)}&turnstile=${turnstileToken}`,
+        `/api/verification?email=${encodeURIComponent(email)}&turnstile=${turnstileToken}`,
       );
       const { success, message } = res.data;
       if (success) {
+        setVerificationCodeSent(true);
         showSuccess('验证码发送成功，请检查你的邮箱！');
-        setDisableButton(true); // 发送成功后禁用按钮，开始倒计时
+        setDisableButton(true);
       } else {
         showError(message);
       }
@@ -518,20 +601,26 @@ const RegisterForm = () => {
                   </div>
                 )}
 
-                <Divider margin='12px' align='center'>
-                  {t('或')}
-                </Divider>
+                {canUseEmailRegister && (
+                  <>
+                    <Divider margin='12px' align='center'>
+                      {t('或')}
+                    </Divider>
 
-                <Button
-                  theme='solid'
-                  type='primary'
-                  className='w-full h-12 flex items-center justify-center bg-black text-white !rounded-full hover:bg-gray-800 transition-colors'
-                  icon={<IconMail size='large' />}
-                  onClick={handleEmailRegisterClick}
-                  loading={emailRegisterLoading}
-                >
-                  <span className='ml-3'>{t('使用 用户名 注册')}</span>
-                </Button>
+                    <Button
+                      theme='solid'
+                      type='primary'
+                      className='w-full h-12 flex items-center justify-center bg-black text-white !rounded-full hover:bg-gray-800 transition-colors'
+                      icon={<IconMail size='large' />}
+                      onClick={handleEmailRegisterClick}
+                      loading={emailRegisterLoading}
+                    >
+                      <span className='ml-3'>
+                        {t(emailOnlyRegister ? '使用 邮箱 注册' : '使用 用户名 注册')}
+                      </span>
+                    </Button>
+                  </>
+                )}
               </div>
 
               <div className='mt-6 text-center text-sm'>
@@ -564,7 +653,7 @@ const RegisterForm = () => {
             </div>
             <div className='px-2 py-8'>
               <Form className='space-y-3'>
-                {!emailOnlyRegister && (
+                {passwordRegisterEnabled && !emailOnlyRegister && (
                   <>
                     <Form.Input
                       field='username'
@@ -603,47 +692,63 @@ const RegisterForm = () => {
                   placeholder={t('输入邮箱地址')}
                   name='email'
                   type='email'
-                  onChange={(value) => handleChange('email', value)}
+                  onChange={(value) => {
+                    handleChange('email', value);
+                    if (emailOnlyRegister) {
+                      setVerificationCodeSent(false);
+                      handleChange('verification_code', '');
+                    }
+                  }}
                   prefix={<IconMail />}
                   suffix={
                     (emailOnlyRegister || showEmailVerification) ? (
                       <Button
                         onClick={sendVerificationCode}
-                        loading={verificationCodeLoading}
+                        icon={
+                          verificationCodeLoading ? (
+                            <Loader2 size={14} className='animate-spin' />
+                          ) : null
+                        }
                         disabled={disableButton || verificationCodeLoading}
                       >
-                        {disableButton
-                          ? `${t('重新发送')} (${countdown})`
-                          : t('获取验证码')}
+                        {verificationCodeLoading
+                          ? t('正在获取')
+                          : disableButton
+                            ? `${t('重新发送')} (${countdown})`
+                            : t('获取验证码')}
                       </Button>
                     ) : undefined
                   }
                 />
 
-                {(emailOnlyRegister || showEmailVerification) && (
+                {((emailOnlyRegister && verificationCodeSent) ||
+                  (!emailOnlyRegister && showEmailVerification)) && (
                   <Form.Input
                     field='verification_code'
-                      label={t('验证码')}
-                      placeholder={t('输入验证码')}
-                      name='verification_code'
-                      onChange={(value) =>
-                        handleChange('verification_code', value)
-                      }
-                      prefix={<IconKey />}
-                    />
+                    label={t('验证码')}
+                    placeholder={t('输入验证码')}
+                    name='verification_code'
+                    onChange={(value) =>
+                      handleChange('verification_code', value)
+                    }
+                    prefix={<IconKey />}
+                  />
                 )}
 
-                <Form.Input
-                  field='invite_code'
-                  label={requireInviteCode ? t('邀请码') : t('邀请码（可选）')}
-                  placeholder={t('输入邀请码')}
-                  name='invite_code'
-                  value={inputs.invite_code || localStorage.getItem('aff') || ''}
-                  onChange={(value) => handleChange('invite_code', value)}
-                  rules={requireInviteCode ? [{ required: true, message: t('请输入邀请码') }] : []}
-                />
+                {!emailOnlyRegister && (
+                  <Form.Input
+                    field='invite_code'
+                    label={requireInviteCode ? t('邀请码') : t('邀请码（可选）')}
+                    placeholder={t('输入邀请码')}
+                    name='invite_code'
+                    value={inputs.invite_code || ''}
+                    onChange={(value) => handleChange('invite_code', value)}
+                    rules={requireInviteCode ? [{ required: true, message: t('请输入邀请码') }] : []}
+                  />
+                )}
 
-                {(hasUserAgreement || hasPrivacyPolicy) && (
+                {(!emailOnlyRegister || verificationCodeSent) &&
+                  (hasUserAgreement || hasPrivacyPolicy) && (
                   <div className='pt-4'>
                     <Checkbox
                       checked={agreedToTerms}
@@ -681,24 +786,23 @@ const RegisterForm = () => {
                   </div>
                 )}
 
-                <div className='space-y-2 pt-2'>
-                  <Button
-                    theme='solid'
-                    className='w-full !rounded-full'
-                    type='primary'
-                    htmlType='submit'
-                    onClick={handleSubmit}
-                    loading={registerLoading}
-                    disabled={
-                      (hasUserAgreement || hasPrivacyPolicy) && !agreedToTerms
-                    }
-                  >
-                    {t('注册')}
-                  </Button>
-                </div>
+                {(!emailOnlyRegister || verificationCodeSent) && (
+                  <div className='space-y-2 pt-2'>
+                    <Button
+                      theme='solid'
+                      className='w-full !rounded-full'
+                      type='primary'
+                      htmlType='submit'
+                      onClick={handleSubmit}
+                      loading={registerLoading}
+                    >
+                      {t('注册')}
+                    </Button>
+                  </div>
+                )}
               </Form>
 
-              {hasOAuthRegisterOptions && (
+              {hasOAuthRegisterOptions && !emailOnlyRegister && (
                 <>
                   <Divider margin='12px' align='center'>
                     {t('或')}
@@ -775,6 +879,31 @@ const RegisterForm = () => {
     );
   };
 
+  const renderRegisterUnavailable = (message) => {
+    return (
+      <div className='flex flex-col items-center'>
+        <div className='w-full max-w-md'>
+          <Card className='border-0 !rounded-2xl overflow-hidden'>
+            <div className='flex justify-center pt-6 pb-2'>
+              <Title heading={3} className='text-gray-800 dark:text-gray-200'>
+                {t('注 册')}
+              </Title>
+            </div>
+            <div className='px-6 py-10 text-center space-y-6'>
+              <Text>{t(message)}</Text>
+              <Link
+                to='/login'
+                className='inline-flex items-center justify-center w-full h-10 rounded-full bg-black text-white hover:bg-gray-800 transition-colors'
+              >
+                {t('返回登录')}
+              </Link>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className='min-h-screen grid lg:grid-cols-2'>
       <AuthBrandPanel />
@@ -789,9 +918,13 @@ const RegisterForm = () => {
           style={{ top: '50%', left: '-120px' }}
         />
         <div className='w-full max-w-sm mt-[60px]'>
-          {emailOnlyRegister || showEmailRegister || !hasOAuthRegisterOptions
-            ? renderEmailRegisterForm()
-            : renderOAuthOptions()}
+          {!registerEnabled
+            ? renderRegisterUnavailable('当前未开放注册')
+            : !canUseEmailRegister && !hasOAuthRegisterOptions
+              ? renderRegisterUnavailable('当前未开启可用的注册方式，请联系管理员')
+              : shouldShowEmailRegisterForm
+                ? renderEmailRegisterForm()
+                : renderOAuthOptions()}
           {renderWeChatLoginModal()}
 
           {turnstileEnabled && (

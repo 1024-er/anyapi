@@ -75,6 +75,7 @@ import {
   Package,
   Server,
   CalendarClock,
+  BookOpen,
 } from 'lucide-react';
 import {
   SiAtlassian,
@@ -135,6 +136,7 @@ export function getLucideIcon(key, selected = false) {
     case 'channel':
       return <Layers {...commonProps} color={iconColor} />;
     case 'redemption':
+    case 'invite':
       return <Gift {...commonProps} color={iconColor} />;
     case 'user':
     case 'personal':
@@ -145,6 +147,8 @@ export function getLucideIcon(key, selected = false) {
       return <Server {...commonProps} color={iconColor} />;
     case 'subscription':
       return <CalendarClock {...commonProps} color={iconColor} />;
+    case 'tutorial':
+      return <BookOpen {...commonProps} color={iconColor} />;
     case 'setting':
       return <Settings {...commonProps} color={iconColor} />;
     default:

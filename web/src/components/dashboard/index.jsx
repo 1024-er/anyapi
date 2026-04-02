@@ -17,10 +17,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useContext, useEffect } from 'react';
-import { getRelativeTime } from '../../helpers';
+import React, { useContext, useEffect, useState } from 'react';
+import { API, getRelativeTime, showError, showInfo, showSuccess } from '../../helpers';
 import { UserContext } from '../../context/User';
 import { StatusContext } from '../../context/Status';
+import { Input, Modal } from '@douyinfe/semi-ui';
+import { IconLock } from '@douyinfe/semi-icons';
 
 import DashboardHeader from './DashboardHeader';
 import StatsCards from './StatsCards';
@@ -52,10 +54,18 @@ import {
   renderMonitorList,
 } from '../../helpers/dashboard';
 
+const FORCE_SET_LOGIN_PASSWORD_KEY = 'force_set_login_password';
+
 const Dashboard = () => {
   // ========== Context ==========
   const [userState, userDispatch] = useContext(UserContext);
   const [statusState, statusDispatch] = useContext(StatusContext);
+  const [showForcePasswordModal, setShowForcePasswordModal] = useState(false);
+  const [passwordSetupLoading, setPasswordSetupLoading] = useState(false);
+  const [passwordInputs, setPasswordInputs] = useState({
+    password: '',
+    password2: '',
+  });
 
   // ========== 主要数据管理 ==========
   const dashboardData = useDashboardData(userState, userDispatch, statusState);
@@ -106,6 +116,51 @@ const Dashboard = () => {
     await dashboardData.handleSearchConfirm(dashboardCharts.updateChartData);
   };
 
+  const handlePasswordInputChange = (key, value) => {
+    setPasswordInputs((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleForcePasswordModalCancel = () => {
+    showInfo(dashboardData.t('请先设置登录密码'));
+    setShowForcePasswordModal(true);
+  };
+
+  const handleForcePasswordSetup = async () => {
+    if (passwordInputs.password === '') {
+      showError(dashboardData.t('请输入新密码！'));
+      return;
+    }
+    if (passwordInputs.password.length < 8) {
+      showError(dashboardData.t('密码长度不得小于 8 位！'));
+      return;
+    }
+    if (passwordInputs.password !== passwordInputs.password2) {
+      showError(dashboardData.t('两次输入的密码不一致！'));
+      return;
+    }
+
+    setPasswordSetupLoading(true);
+    try {
+      const res = await API.put('/api/user/self', {
+        original_password: '',
+        password: passwordInputs.password,
+      });
+      const { success, message } = res.data;
+      if (!success) {
+        showError(message);
+        return;
+      }
+      sessionStorage.removeItem(FORCE_SET_LOGIN_PASSWORD_KEY);
+      setPasswordInputs({ password: '', password2: '' });
+      setShowForcePasswordModal(false);
+      showSuccess(dashboardData.t('登录密码设置成功！'));
+    } catch (error) {
+      showError(dashboardData.t('设置登录密码失败，请重试'));
+    } finally {
+      setPasswordSetupLoading(false);
+    }
+  };
+
   // ========== 数据准备 ==========
   const apiInfoData = statusState?.status?.api_info || [];
   const announcementData = (statusState?.status?.announcements || []).map(
@@ -135,11 +190,54 @@ const Dashboard = () => {
 
   // ========== Effects ==========
   useEffect(() => {
+    setShowForcePasswordModal(
+      sessionStorage.getItem(FORCE_SET_LOGIN_PASSWORD_KEY) === '1',
+    );
     initChart();
   }, []);
 
   return (
     <div className='h-full'>
+      <Modal
+        title={
+          <div className='flex items-center gap-2'>
+            <IconLock className='text-orange-500' />
+            {dashboardData.t('设置登录密码')}
+          </div>
+        }
+        visible={showForcePasswordModal}
+        onCancel={handleForcePasswordModalCancel}
+        onOk={handleForcePasswordSetup}
+        okText={dashboardData.t('保存密码')}
+        cancelText={dashboardData.t('暂不关闭')}
+        okButtonProps={{ loading: passwordSetupLoading }}
+        maskClosable={false}
+        closable={false}
+        centered
+      >
+        <div className='space-y-4 py-2'>
+          <p className='text-sm text-gray-500'>
+            {dashboardData.t('注册成功，请先设置登录密码后再继续使用控制台。')}
+          </p>
+          <Input
+            placeholder={dashboardData.t('请输入登录密码')}
+            type='password'
+            autoComplete='new-password'
+            value={passwordInputs.password}
+            onChange={(value) => handlePasswordInputChange('password', value)}
+            prefix={<IconLock />}
+          />
+          <Input
+            placeholder={dashboardData.t('请再次输入登录密码')}
+            type='password'
+            autoComplete='new-password'
+            value={passwordInputs.password2}
+            onChange={(value) => handlePasswordInputChange('password2', value)}
+            prefix={<IconLock />}
+          />
+        </div>
+      </Modal>
+
       <DashboardHeader
         getGreeting={dashboardData.getGreeting}
         greetingVisible={dashboardData.greetingVisible}

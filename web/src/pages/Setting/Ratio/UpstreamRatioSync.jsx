@@ -834,7 +834,7 @@ export default function UpstreamRatioSync(props) {
           },
         }}
         scroll={{ x: 'max-content' }}
-        size='middle'
+        size='default'
         loading={loading || syncLoading}
       />
     );

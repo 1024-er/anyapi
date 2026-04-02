@@ -31,6 +31,9 @@ const TransferModal = ({
   getQuotaPerUnit,
   transferAmount,
   setTransferAmount,
+  minTransferAmount,
+  maxTransferAmount,
+  transferDisplayPrecision,
 }) => {
   return (
     <Modal
@@ -62,8 +65,10 @@ const TransferModal = ({
             {t('划转额度')} · {t('最低') + renderQuota(getQuotaPerUnit())}
           </Typography.Text>
           <InputNumber
-            min={getQuotaPerUnit()}
-            max={userState?.user?.aff_quota || 0}
+            min={minTransferAmount}
+            max={maxTransferAmount}
+            step={transferDisplayPrecision === 0 ? 1 : 0.01}
+            precision={transferDisplayPrecision}
             value={transferAmount}
             onChange={(value) => setTransferAmount(value)}
             className='w-full !rounded-lg'

@@ -122,7 +122,7 @@ const TokensTable = (tokensData) => {
         />
       }
       className='rounded-xl overflow-hidden'
-      size='middle'
+      size='default'
     />
   );
 };

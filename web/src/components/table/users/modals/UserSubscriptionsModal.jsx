@@ -423,7 +423,7 @@ const UserSubscriptionsModal = ({ visible, onCancel, user, t, onSuccess }) => {
               style={{ padding: 30 }}
             />
           }
-          size='middle'
+          size='default'
         />
       </div>
     </SideSheet>

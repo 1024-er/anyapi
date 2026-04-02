@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { lazy, Suspense, useContext, useMemo } from 'react';
-import { Route, Routes, useLocation, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import Loading from './components/common/ui/Loading';
 import User from './pages/User';
 import { AuthRedirect, PrivateRoute, AdminRoute } from './helpers';
@@ -35,15 +35,16 @@ import Channel from './pages/Channel';
 import Token from './pages/Token';
 import Redemption from './pages/Redemption';
 import TopUp from './pages/TopUp';
+import Invite from './pages/Invite';
 import Log from './pages/Log';
-import Chat from './pages/Chat';
-import Chat2Link from './pages/Chat2Link';
-import Midjourney from './pages/Midjourney';
+// import Chat from './pages/Chat';
+// import Chat2Link from './pages/Chat2Link';
+// import Midjourney from './pages/Midjourney';
 import Pricing from './pages/Pricing';
 import Task from './pages/Task';
 import ModelPage from './pages/Model';
 import ModelDeploymentPage from './pages/ModelDeployment';
-import Playground from './pages/Playground';
+// import Playground from './pages/Playground';
 import Subscription from './pages/Subscription';
 import OAuth2Callback from './components/auth/OAuth2Callback';
 import PersonalSetting from './components/settings/PersonalSetting';
@@ -86,6 +87,20 @@ function App() {
     }
     return false; // 默认不需要登录
   }, [statusState?.status?.HeaderNavModules]);
+
+  const registerEnabled = useMemo(() => {
+    if (typeof statusState?.status?.register_enabled !== 'undefined') {
+      return statusState.status.register_enabled !== false;
+    }
+    const savedStatus = localStorage.getItem('status');
+    if (!savedStatus) return true;
+    try {
+      const parsedStatus = JSON.parse(savedStatus) || {};
+      return parsedStatus.register_enabled !== false;
+    } catch (error) {
+      return true;
+    }
+  }, [statusState?.status?.register_enabled]);
 
   return (
     <SetupCheck>
@@ -147,14 +162,14 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route
+        {/* <Route
           path='/console/playground'
           element={
             <PrivateRoute>
               <Playground />
             </PrivateRoute>
           }
-        />
+        /> */}
         <Route
           path='/console/redemption'
           element={
@@ -192,11 +207,15 @@ function App() {
         <Route
           path='/register'
           element={
-            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
-              <AuthRedirect>
-                <RegisterForm />
-              </AuthRedirect>
-            </Suspense>
+            !registerEnabled ? (
+              <Navigate to='/login' replace />
+            ) : (
+              <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+                <AuthRedirect>
+                  <RegisterForm />
+                </AuthRedirect>
+              </Suspense>
+            )
           }
         />
         <Route
@@ -257,12 +276,22 @@ function App() {
             </AdminRoute>
           }
         />
-        <Route
+        {/* <Route
           path='/console/personal'
           element={
             <PrivateRoute>
               <Suspense fallback={<Loading></Loading>} key={location.pathname}>
                 <PersonalSetting />
+              </Suspense>
+            </PrivateRoute>
+          }
+        /> */}
+        <Route
+          path='/console/invite'
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+                <Invite />
               </Suspense>
             </PrivateRoute>
           }
@@ -295,7 +324,7 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route
+        {/* <Route
           path='/console/midjourney'
           element={
             <PrivateRoute>
@@ -304,7 +333,7 @@ function App() {
               </Suspense>
             </PrivateRoute>
           }
-        />
+        /> */}
         <Route
           path='/console/task'
           element={
@@ -358,16 +387,16 @@ function App() {
             </Suspense>
           }
         />
-        <Route
+        {/* <Route
           path='/console/chat/:id?'
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>
               <Chat />
             </Suspense>
           }
-        />
+        /> */}
         {/* 方便使用chat2link直接跳转聊天... */}
-        <Route
+        {/* <Route
           path='/chat2link'
           element={
             <PrivateRoute>
@@ -376,7 +405,7 @@ function App() {
               </Suspense>
             </PrivateRoute>
           }
-        />
+        /> */}
         <Route path='*' element={<NotFound />} />
       </Routes>
     </SetupCheck>

@@ -1,11 +1,10 @@
 package common
 
 import (
-	"strings"
+	"crypto/rand"
+	"strconv"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type verificationValue struct {
@@ -24,12 +23,22 @@ var verificationMapMaxSize = 10
 var VerificationValidMinutes = 10
 
 func GenerateVerificationCode(length int) string {
-	code := uuid.New().String()
-	code = strings.Replace(code, "-", "", -1)
-	if length == 0 {
-		return code
+	if length <= 0 {
+		length = 6
 	}
-	return code[:length]
+	randomBytes := make([]byte, length)
+	if _, err := rand.Read(randomBytes); err != nil {
+		fallback := strconv.FormatInt(time.Now().UnixNano(), 10)
+		for len(fallback) < length {
+			fallback += fallback
+		}
+		return fallback[:length]
+	}
+	code := make([]byte, length)
+	for i := 0; i < length; i++ {
+		code[i] = '0' + (randomBytes[i] % 10)
+	}
+	return string(code)
 }
 
 func RegisterVerificationCodeWithKey(key string, code string, purpose string) {

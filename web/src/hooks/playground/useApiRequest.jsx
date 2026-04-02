@@ -189,7 +189,7 @@ export const useApiRequest = (
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'New-Api-User': getUserIdFromLocalStorage(),
+            'Any-Api-User': getUserIdFromLocalStorage(),
           },
           body: JSON.stringify(payload),
         });

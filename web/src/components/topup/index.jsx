@@ -29,13 +29,16 @@ import {
   copy,
   getQuotaPerUnit,
 } from '../../helpers';
+import {
+  quotaToDisplayAmount,
+  displayAmountToQuota,
+} from '../../helpers/quota';
 import { Modal, Toast } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../../context/User';
 import { StatusContext } from '../../context/Status';
 
 import RechargeCard from './RechargeCard';
-import InvitationCard from './InvitationCard';
 import TransferModal from './modals/TransferModal';
 import PaymentConfirmModal from './modals/PaymentConfirmModal';
 import TopupHistoryModal from './modals/TopupHistoryModal';
@@ -45,6 +48,7 @@ const TopUp = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [userState, userDispatch] = useContext(UserContext);
   const [statusState] = useContext(StatusContext);
+  const registerEnabled = statusState?.status?.register_enabled !== false;
 
   const [redemptionCode, setRedemptionCode] = useState('');
   const [amount, setAmount] = useState(0.0);
@@ -90,6 +94,8 @@ const TopUp = () => {
   const [affLink, setAffLink] = useState('');
   const [openTransfer, setOpenTransfer] = useState(false);
   const [transferAmount, setTransferAmount] = useState(0);
+  const transferDisplayPrecision =
+    localStorage.getItem('quota_display_type') === 'TOKENS' ? 0 : 2;
 
   // 账单Modal状态
   const [openHistory, setOpenHistory] = useState(false);
@@ -535,10 +541,14 @@ const TopUp = () => {
 
   // 获取邀请链接
   const getAffLink = async () => {
+    if (!registerEnabled) {
+      setAffLink('');
+      return;
+    }
     const res = await API.get('/api/user/aff');
     const { success, message, data } = res.data;
     if (success) {
-      let link = `${window.location.origin}/register?aff=${data}`;
+      let link = `${window.location.origin}/register?aff=${encodeURIComponent(data)}`;
       setAffLink(link);
     } else {
       showError(message);
@@ -547,12 +557,13 @@ const TopUp = () => {
 
   // 划转邀请额度
   const transfer = async () => {
-    if (transferAmount < getQuotaPerUnit()) {
+    const transferQuota = displayAmountToQuota(transferAmount);
+    if (transferQuota < getQuotaPerUnit()) {
       showError(t('划转金额最低为') + ' ' + renderQuota(getQuotaPerUnit()));
       return;
     }
     const res = await API.post(`/api/user/aff_transfer`, {
-      quota: transferAmount,
+      quota: transferQuota,
     });
     const { success, message } = res.data;
     if (success) {
@@ -582,14 +593,19 @@ const TopUp = () => {
   useEffect(() => {
     // 始终获取最新用户数据，确保余额等统计信息准确
     getUserQuota().then();
-    setTransferAmount(getQuotaPerUnit());
+    setTransferAmount(quotaToDisplayAmount(getQuotaPerUnit()));
   }, []);
 
   useEffect(() => {
+    if (!registerEnabled) {
+      affFetchedRef.current = false;
+      setAffLink('');
+      return;
+    }
     if (affFetchedRef.current) return;
     affFetchedRef.current = true;
     getAffLink().then();
-  }, []);
+  }, [registerEnabled]);
 
   // 在 statusState 可用时获取充值信息
   useEffect(() => {
@@ -725,6 +741,9 @@ const TopUp = () => {
         getQuotaPerUnit={getQuotaPerUnit}
         transferAmount={transferAmount}
         setTransferAmount={setTransferAmount}
+        minTransferAmount={quotaToDisplayAmount(getQuotaPerUnit())}
+        maxTransferAmount={quotaToDisplayAmount(userState?.user?.aff_quota || 0)}
+        transferDisplayPrecision={transferDisplayPrecision}
       />
 
       {/* 充值确认模态框 */}
@@ -780,7 +799,7 @@ const TopUp = () => {
       </Modal>
 
       {/* 主布局区域 */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+      <div className='grid grid-cols-1 gap-6'>
         <RechargeCard
           t={t}
           enableOnlineTopUp={enableOnlineTopUp}
@@ -826,14 +845,6 @@ const TopUp = () => {
           activeSubscriptions={activeSubscriptions}
           allSubscriptions={allSubscriptions}
           reloadSubscriptionSelf={getSubscriptionSelf}
-        />
-        <InvitationCard
-          t={t}
-          userState={userState}
-          renderQuota={renderQuota}
-          setOpenTransfer={setOpenTransfer}
-          affLink={affLink}
-          handleAffLinkClick={handleAffLinkClick}
         />
       </div>
     </div>

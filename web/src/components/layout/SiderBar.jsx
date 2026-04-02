@@ -34,6 +34,7 @@ import {
   showSuccess,
 } from '../../helpers';
 import { UserContext } from '../../context/User';
+import { StatusContext } from '../../context/Status';
 import { useTheme, useSetTheme } from '../../context/Theme';
 import { normalizeLanguage } from '../../i18n/language';
 import SkeletonWrapper from './components/SkeletonWrapper';
@@ -80,8 +81,11 @@ const routerMap = {
   models: '/console/models',
   deployment: '/console/deployment',
   playground: '/console/playground',
-  personal: '/console/personal',
+  // personal: '/console/personal',
+  invite: '/console/invite',
 };
+
+const isExternalRoute = (to) => /^https?:\/\//i.test(to);
 
 const SiderBar = ({
   onNavigate = () => {},
@@ -106,7 +110,10 @@ const SiderBar = ({
   const [routerMapState, setRouterMapState] = useState(routerMap);
 
   const [userState, userDispatch] = useContext(UserContext);
+  const [statusState] = useContext(StatusContext);
   const theme = useTheme();
+  const tutorialLink =
+    statusState?.status?.docs_link || localStorage.getItem('docs_link') || '';
   const setTheme = useSetTheme();
   const systemName = getSystemName();
 
@@ -182,7 +189,7 @@ const SiderBar = ({
             : 'tableHiddle',
       },
       {
-        text: t('令牌管理'),
+        text: t('API Keys'),
         itemKey: 'token',
         to: '/token',
       },
@@ -191,15 +198,15 @@ const SiderBar = ({
         itemKey: 'log',
         to: '/log',
       },
-      {
-        text: t('绘图日志'),
-        itemKey: 'midjourney',
-        to: '/midjourney',
-        className:
-          localStorage.getItem('enable_drawing') === 'true'
-            ? ''
-            : 'tableHiddle',
-      },
+      // {
+      //   text: t('绘图日志'),
+      //   itemKey: 'midjourney',
+      //   to: '/midjourney',
+      //   className:
+      //     localStorage.getItem('enable_drawing') === 'true'
+      //       ? ''
+      //       : 'tableHiddle',
+      // },
       {
         text: t('任务日志'),
         itemKey: 'task',
@@ -212,6 +219,20 @@ const SiderBar = ({
         itemKey: 'topup',
         to: '/topup',
       },
+      {
+        text: t('邀请奖励'),
+        itemKey: 'invite',
+        to: '/invite',
+      },
+      ...(tutorialLink
+        ? [
+            {
+              text: t('使用教程'),
+              itemKey: 'tutorial',
+              to: tutorialLink,
+            },
+          ]
+        : []),
     ];
 
     const filteredItems = items.filter((item) => {
@@ -224,6 +245,7 @@ const SiderBar = ({
     localStorage.getItem('enable_data_export'),
     localStorage.getItem('enable_drawing'),
     localStorage.getItem('enable_task'),
+    tutorialLink,
     t,
     isModuleVisible,
   ]);
@@ -338,6 +360,16 @@ const SiderBar = ({
     setRouterMapState(newRouterMap);
     return newRouterMap;
   };
+
+  const getItemRoute = useCallback(
+    (itemKey) => {
+      if (itemKey === 'tutorial') {
+        return tutorialLink;
+      }
+      return routerMapState[itemKey] || routerMap[itemKey];
+    },
+    [routerMapState, tutorialLink],
+  );
 
   useEffect(() => {
     let chats = localStorage.getItem('chats');
@@ -532,10 +564,23 @@ const SiderBar = ({
           hoverStyle='sidebar-nav-item:hover'
           selectedStyle='sidebar-nav-item-selected'
           renderWrapper={({ itemElement, props }) => {
-            const to =
-              routerMapState[props.itemKey] || routerMap[props.itemKey];
+            const to = getItemRoute(props.itemKey);
 
             if (!to) return itemElement;
+
+            if (isExternalRoute(to)) {
+              return (
+                <a
+                  style={{ textDecoration: 'none' }}
+                  href={to}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  onClick={onNavigate}
+                >
+                  {itemElement}
+                </a>
+              );
+            }
 
             return (
               <Link
@@ -548,6 +593,12 @@ const SiderBar = ({
             );
           }}
           onSelect={(key) => {
+            const to = getItemRoute(key.itemKey);
+
+            if (isExternalRoute(to)) {
+              return;
+            }
+
             if (openedKeys.includes(key.itemKey)) {
               setOpenedKeys(openedKeys.filter((k) => k !== key.itemKey));
             }
@@ -617,7 +668,7 @@ const SiderBar = ({
                 icon={<LogOut size={16} />}
                 theme='borderless'
                 type='tertiary'
-                size='middle'
+                size='default'
                 onClick={logout}
                 className='sidebar-action-btn'
                 aria-label={t('logout')}

@@ -124,7 +124,7 @@ services:
     networks:
       - anyapi-network
     ports:
-      - "0.0.0.0:3306:3306"  # 仅本机访问；远程管理可用 SSH 隧道
+      - "127.0.0.1:3306:3306"  # 仅本机访问；远程管理可用 SSH 隧道
 
 volumes:
   # pg_data:

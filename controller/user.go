@@ -129,8 +129,8 @@ func Logout(c *gin.Context) {
 }
 
 func Register(c *gin.Context) {
-	if !common.RegisterEnabled {
-		common.ApiErrorI18n(c, i18n.MsgUserRegisterDisabled)
+	if err := ensureSelfRegistrationEnabled(); err != nil {
+		handleRegistrationPolicyError(c, err)
 		return
 	}
 
@@ -141,7 +141,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	isEmailOnly := common.EmailOnlyRegisterEnabled || (common.EmailVerificationEnabled && user.Username == "")
+	isEmailOnly := common.EmailOnlyRegisterEnabled
 
 	if isEmailOnly {
 		if user.Email == "" || user.VerificationCode == "" {
@@ -173,25 +173,24 @@ func Register(c *gin.Context) {
 		}
 	}
 
-	affCode := user.AffCode
-	inviterId, _ := model.GetUserIdByAffCode(affCode)
-	if common.RegisterRequireInviteCode && inviterId == 0 {
-		common.ApiErrorI18n(c, i18n.MsgInvalidInviteCode)
+	inviterId, err := resolveRegistrationInviterID(user.AffCode)
+	if err != nil {
+		handleRegistrationPolicyError(c, err)
 		return
 	}
 
 	var cleanUser model.User
 	if isEmailOnly {
-		autoUsername := "user_" + common.GetRandomString(10)
-		autoPassword := common.GetRandomString(16)
+		autoUsername := "u_" + common.GetRandomString(10)
 		emailPrefix := strings.Split(user.Email, "@")[0]
 		displayName := emailPrefix
 		if len(displayName) > 20 {
 			displayName = displayName[:20]
 		}
+
 		cleanUser = model.User{
 			Username:    autoUsername,
-			Password:    autoPassword,
+			Password:    "",
 			DisplayName: displayName,
 			Email:       user.Email,
 			InviterId:   inviterId,
@@ -258,11 +257,7 @@ func Register(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-	})
-	return
+	setupLogin(&insertedUser, c)
 }
 
 func GetAllUsers(c *gin.Context) {
@@ -402,6 +397,21 @@ func GetAffCode(c *gin.Context) {
 		"data":    user.AffCode,
 	})
 	return
+}
+
+func GetInviteRecords(c *gin.Context) {
+	id := c.GetInt("id")
+	pageInfo := common.GetPageQuery(c)
+
+	inviteRecords, total, err := model.GetInviteRecordsByInviterId(id, pageInfo.GetStartIdx(), pageInfo.GetPageSize())
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	pageInfo.SetTotal(int(total))
+	pageInfo.SetItems(inviteRecords)
+	common.ApiSuccess(c, pageInfo)
 }
 
 func GetSelf(c *gin.Context) {

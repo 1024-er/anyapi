@@ -91,17 +91,22 @@ const PasswordResetForm = () => {
     }
     setDisableButton(true);
     setLoading(true);
-    const res = await API.get(
-      `/api/reset_password?email=${email}&turnstile=${turnstileToken}`,
-    );
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess(t('重置邮件发送成功，请检查邮箱！'));
-      setInputs({ ...inputs, email: '' });
-    } else {
-      showError(message);
+    try {
+      const params = new URLSearchParams({
+        email,
+        turnstile: turnstileToken,
+      });
+      const res = await API.get(`/api/reset_password?${params.toString()}`);
+      const { success, message } = res.data;
+      if (success) {
+        showSuccess(t('重置邮件发送成功，请检查邮箱！'));
+        setInputs({ ...inputs, email: '' });
+      } else {
+        showError(message);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (

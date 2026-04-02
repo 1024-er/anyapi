@@ -241,15 +241,6 @@ const PageLayout = () => {
                   render={
                     <Dropdown.Menu className='!bg-semi-color-bg-overlay !border-semi-color-border !shadow-lg !rounded-lg'>
                       <Dropdown.Item
-                        onClick={() => navigate('/console/personal')}
-                        className='!px-3 !py-1.5 !text-sm hover:!bg-semi-color-fill-1'
-                      >
-                        <div className='flex items-center gap-2'>
-                          <IconUserSetting size='small' className='text-gray-500' />
-                          <span>{t('个人设置')}</span>
-                        </div>
-                      </Dropdown.Item>
-                      <Dropdown.Item
                         onClick={() => navigate('/console/token')}
                         className='!px-3 !py-1.5 !text-sm hover:!bg-semi-color-fill-1'
                       >
@@ -291,7 +282,7 @@ const PageLayout = () => {
                       {userState.user.username[0].toUpperCase()}
                     </Avatar>
                     <Typography.Text className='!text-xs !font-medium !text-semi-color-text-1'>
-                      {userState.user.username}
+                      {userState.user.display_name || userState.user.username}
                     </Typography.Text>
                     <ChevronDown size={14} className='text-semi-color-text-2' />
                   </Button>

@@ -421,7 +421,7 @@ const SettingsAPIInfo = ({ options, refresh }) => {
               setPageSize(size);
             },
           }}
-          size='middle'
+          size='default'
           loading={loading}
           empty={
             <Empty

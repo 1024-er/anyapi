@@ -78,7 +78,7 @@ const SubscriptionsTable = (subscriptionsData) => {
         />
       }
       className='overflow-hidden'
-      size='middle'
+      size='default'
     />
   );
 };

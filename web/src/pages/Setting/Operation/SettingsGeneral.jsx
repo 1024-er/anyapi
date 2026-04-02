@@ -166,7 +166,7 @@ export default function GeneralSettings(props) {
                   field={'general_setting.docs_link'}
                   label={t('文档地址')}
                   initValue={''}
-                  placeholder={t('例如 https://doc.anyapi.pro')}
+                  placeholder={t('例如 https://docs.anyapi.pro')}
                   onChange={handleFieldChange('general_setting.docs_link')}
                   showClear
                 />

@@ -61,6 +61,7 @@ func WeChatAuth(c *gin.Context) {
 		return
 	}
 	code := c.Query("code")
+	session := sessions.Default(c)
 	wechatId, err := getWeChatIdByCode(code)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -89,23 +90,23 @@ func WeChatAuth(c *gin.Context) {
 			return
 		}
 	} else {
-		if common.RegisterEnabled {
-			user.Username = "wechat_" + strconv.Itoa(model.GetMaxUserId()+1)
-			user.DisplayName = "WeChat User"
-			user.Role = common.RoleCommonUser
-			user.Status = common.UserStatusEnabled
-
-			if err := user.Insert(0); err != nil {
-				c.JSON(http.StatusOK, gin.H{
-					"success": false,
-					"message": err.Error(),
-				})
-				return
+		inviterId, err := resolveThirdPartyRegistrationInviterID(c, session)
+		if err != nil {
+			if !handleRegistrationPolicyError(c, err) {
+				common.ApiError(c, err)
 			}
-		} else {
+			return
+		}
+
+		user.Username = "wechat_" + strconv.Itoa(model.GetMaxUserId()+1)
+		user.DisplayName = "WeChat User"
+		user.Role = common.RoleCommonUser
+		user.Status = common.UserStatusEnabled
+
+		if err := user.Insert(inviterId); err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "管理员关闭了新用户注册",
+				"message": err.Error(),
 			})
 			return
 		}

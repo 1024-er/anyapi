@@ -197,7 +197,7 @@ const UsersTable = (usersData) => {
           />
         }
         className='overflow-hidden'
-        size='middle'
+        size='default'
       />
 
       {/* Modal components */}

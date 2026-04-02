@@ -106,11 +106,11 @@ func HandleOAuth(c *gin.Context) {
 	// 7. Find or create user
 	user, err := findOrCreateOAuthUser(c, provider, oauthUser, session)
 	if err != nil {
-		switch err.(type) {
+		switch e := err.(type) {
 		case *OAuthUserDeletedError:
 			common.ApiErrorI18n(c, i18n.MsgOAuthUserDeleted)
-		case *OAuthRegistrationDisabledError:
-			common.ApiErrorI18n(c, i18n.MsgUserRegisterDisabled)
+		case *RegistrationPolicyError:
+			common.ApiErrorI18n(c, e.MsgKey)
 		default:
 			common.ApiError(c, err)
 		}
@@ -230,9 +230,9 @@ func findOrCreateOAuthUser(c *gin.Context, provider oauth.Provider, oauthUser *o
 		}
 	}
 
-	// User doesn't exist, create new user if registration is enabled
-	if !common.RegisterEnabled {
-		return nil, &OAuthRegistrationDisabledError{}
+	inviterId, err := resolveThirdPartyRegistrationInviterID(c, session)
+	if err != nil {
+		return nil, err
 	}
 
 	// Set up new user
@@ -259,13 +259,6 @@ func findOrCreateOAuthUser(c *gin.Context, provider oauth.Provider, oauthUser *o
 	}
 	user.Role = common.RoleCommonUser
 	user.Status = common.UserStatusEnabled
-
-	// Handle affiliate code
-	affCode := session.Get("aff")
-	inviterId := 0
-	if affCode != nil {
-		inviterId, _ = model.GetUserIdByAffCode(affCode.(string))
-	}
 
 	// Use transaction to ensure user creation and OAuth binding are atomic
 	if genericProvider, ok := provider.(*oauth.GenericOAuthProvider); ok {
@@ -333,12 +326,6 @@ type OAuthUserDeletedError struct{}
 
 func (e *OAuthUserDeletedError) Error() string {
 	return "user has been deleted"
-}
-
-type OAuthRegistrationDisabledError struct{}
-
-func (e *OAuthRegistrationDisabledError) Error() string {
-	return "registration is disabled"
 }
 
 // handleOAuthError handles OAuth errors and returns translated message

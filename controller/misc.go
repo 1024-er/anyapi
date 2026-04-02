@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -48,31 +47,33 @@ func GetStatus(c *gin.Context) {
 	legalSetting := system_setting.GetLegalSettings()
 
 	data := gin.H{
-		"version":                     common.Version,
-		"start_time":                  common.StartTime,
-		"email_verification":          common.EmailVerificationEnabled,
-		"github_oauth":                common.GitHubOAuthEnabled,
-		"github_client_id":            common.GitHubClientId,
-		"discord_oauth":               system_setting.GetDiscordSettings().Enabled,
-		"discord_client_id":           system_setting.GetDiscordSettings().ClientId,
-		"linuxdo_oauth":               common.LinuxDOOAuthEnabled,
-		"linuxdo_client_id":           common.LinuxDOClientId,
-		"linuxdo_minimum_trust_level": common.LinuxDOMinimumTrustLevel,
-		"telegram_oauth":              common.TelegramOAuthEnabled,
-		"telegram_bot_name":           common.TelegramBotName,
-		"system_name":                 common.SystemName,
-		"logo":                        common.Logo,
-		"footer_html":                 common.Footer,
-		"wechat_qrcode":               common.WeChatAccountQRCodeImageURL,
-		"wechat_login":                common.WeChatAuthEnabled,
-		"server_address":              system_setting.ServerAddress,
-		"turnstile_check":             common.TurnstileCheckEnabled,
+		"version":                      common.Version,
+		"start_time":                   common.StartTime,
+		"register_enabled":             common.RegisterEnabled,
+		"password_register_enabled":    common.PasswordRegisterEnabled,
+		"email_verification":           common.EmailVerificationEnabled,
+		"github_oauth":                 common.GitHubOAuthEnabled,
+		"github_client_id":             common.GitHubClientId,
+		"discord_oauth":                system_setting.GetDiscordSettings().Enabled,
+		"discord_client_id":            system_setting.GetDiscordSettings().ClientId,
+		"linuxdo_oauth":                common.LinuxDOOAuthEnabled,
+		"linuxdo_client_id":            common.LinuxDOClientId,
+		"linuxdo_minimum_trust_level":  common.LinuxDOMinimumTrustLevel,
+		"telegram_oauth":               common.TelegramOAuthEnabled,
+		"telegram_bot_name":            common.TelegramBotName,
+		"system_name":                  common.SystemName,
+		"logo":                         common.Logo,
+		"footer_html":                  common.Footer,
+		"wechat_qrcode":                common.WeChatAccountQRCodeImageURL,
+		"wechat_login":                 common.WeChatAuthEnabled,
+		"server_address":               system_setting.ServerAddress,
+		"turnstile_check":              common.TurnstileCheckEnabled,
 		"register_require_invite_code": common.RegisterRequireInviteCode,
 		"email_only_register":          common.EmailOnlyRegisterEnabled,
-		"turnstile_site_key":          common.TurnstileSiteKey,
-		"top_up_link":                 common.TopUpLink,
-		"docs_link":                   operation_setting.GetGeneralSetting().DocsLink,
-		"quota_per_unit":              common.QuotaPerUnit,
+		"turnstile_site_key":           common.TurnstileSiteKey,
+		"top_up_link":                  common.TopUpLink,
+		"docs_link":                    operation_setting.GetGeneralSetting().DocsLink,
+		"quota_per_unit":               common.QuotaPerUnit,
 		// 兼容旧前端：保留 display_in_currency，同时提供新的 quota_display_type
 		"display_in_currency":           operation_setting.IsCurrencyDisplay(),
 		"quota_display_type":            operation_setting.GetQuotaDisplayType(),
@@ -283,7 +284,7 @@ func SendEmailVerification(c *gin.Context) {
 		})
 		return
 	}
-	code := common.GenerateVerificationCode(6)
+	code := common.GenerateVerificationCode(4)
 	common.RegisterVerificationCodeWithKey(email, code, common.EmailVerificationPurpose)
 	subject := fmt.Sprintf("%s邮箱验证邮件", common.SystemName)
 	content := fmt.Sprintf("<p>您好，你正在进行%s邮箱验证。</p>"+
@@ -317,7 +318,7 @@ func SendPasswordResetEmail(c *gin.Context) {
 		})
 		return
 	}
-	code := common.GenerateVerificationCode(0)
+	code := common.GetRandomString(32)
 	common.RegisterVerificationCodeWithKey(email, code, common.PasswordResetPurpose)
 	link := fmt.Sprintf("%s/user/reset?email=%s&token=%s", system_setting.ServerAddress, email, code)
 	subject := fmt.Sprintf("%s密码重置", common.SystemName)
@@ -344,7 +345,13 @@ type PasswordResetRequest struct {
 
 func ResetPassword(c *gin.Context) {
 	var req PasswordResetRequest
-	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	if err := common.DecodeJson(c.Request.Body, &req); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "无效的参数",
+		})
+		return
+	}
 	if req.Email == "" || req.Token == "" {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -359,9 +366,8 @@ func ResetPassword(c *gin.Context) {
 		})
 		return
 	}
-	password := common.GenerateVerificationCode(12)
-	err = model.ResetUserPasswordByEmail(req.Email, password)
-	if err != nil {
+	password := common.GetRandomString(12)
+	if err := model.ResetUserPasswordByEmail(req.Email, password); err != nil {
 		common.ApiError(c, err)
 		return
 	}

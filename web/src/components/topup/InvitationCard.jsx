@@ -173,28 +173,29 @@ const InvitationCard = ({
             </div>
           }
         >
-          {/* 邀请链接部分 */}
-          <Input
-            value={affLink}
-            readonly
-            className='!rounded-lg'
-            prefix={t('邀请链接')}
-            suffix={
-              <Button
-                type='primary'
-                theme='solid'
-                onClick={handleAffLinkClick}
-                icon={<Copy size={14} />}
-                className='!rounded-lg'
-              >
-                {t('复制')}
-              </Button>
-            }
-          />
+          {affLink && (
+            <Input
+              value={affLink}
+              readonly
+              className='!rounded-lg'
+              prefix={t('邀请链接')}
+              suffix={
+                <Button
+                  type='primary'
+                  theme='solid'
+                  onClick={handleAffLinkClick}
+                  icon={<Copy size={14} />}
+                  className='!rounded-lg'
+                >
+                  {t('复制')}
+                </Button>
+              }
+            />
+          )}
         </Card>
 
         {/* 奖励说明 */}
-        <Card
+        {/* <Card
           className='!rounded-xl w-full'
           title={<Text type='tertiary'>{t('奖励说明')}</Text>}
         >
@@ -220,7 +221,7 @@ const InvitationCard = ({
               </Text>
             </div>
           </div>
-        </Card>
+        </Card> */}
       </Space>
     </Card>
   );

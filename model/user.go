@@ -115,6 +115,8 @@ func generateDefaultSidebarConfigForRole(userRole int) string {
 		"log":        true,
 		"midjourney": true,
 		"task":       true,
+		"invite":     true,
+		"tutorial":   true,
 	}
 
 	// 个人中心区域 - 所有用户都可以访问
@@ -339,6 +341,43 @@ func inviteUser(inviterId int) (err error) {
 	return DB.Save(user).Error
 }
 
+type InviteRecord struct {
+	Id           int    `json:"id"`
+	Username     string `json:"username"`
+	DisplayName  string `json:"display_name"`
+	Email        string `json:"email"`
+	RegisterTime int64  `json:"register_time"`
+}
+
+func GetInviteRecordsByInviterId(inviterId int, startIdx int, num int) ([]*InviteRecord, int64, error) {
+	inviteRecords := make([]*InviteRecord, 0)
+	var total int64
+
+	err := DB.Model(&User{}).Where("inviter_id = ?", inviterId).Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	registerTimeSubQuery := LOG_DB.Model(&Log{}).
+		Select("user_id, MIN(created_at) AS register_time").
+		Where("type = ? AND (content LIKE ? OR content LIKE ?)", LogTypeSystem, "新用户注册赠送%", "使用邀请码赠送%").
+		Group("user_id")
+
+	err = DB.Model(&User{}).
+		Select("users.id, users.username, users.display_name, users.email, register_logs.register_time").
+		Joins("LEFT JOIN (?) AS register_logs ON register_logs.user_id = users.id", registerTimeSubQuery).
+		Where("users.inviter_id = ?", inviterId).
+		Order("users.id desc").
+		Offset(startIdx).
+		Limit(num).
+		Find(&inviteRecords).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return inviteRecords, total, nil
+}
+
 func (user *User) TransferAffQuotaToQuota(quota int) error {
 	// 检查quota是否小于最小额度
 	if float64(quota) < common.QuotaPerUnit {
@@ -384,7 +423,11 @@ func (user *User) Insert(inviterId int) error {
 			return err
 		}
 	}
-	user.Quota = common.QuotaForNewUser
+	if inviterId != 0 {
+		user.Quota = 0
+	} else {
+		user.Quota = common.QuotaForNewUser
+	}
 	//user.SetAccessToken(common.GetUUID())
 	user.AffCode = common.GetRandomString(4)
 

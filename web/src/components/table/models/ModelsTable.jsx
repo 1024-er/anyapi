@@ -100,7 +100,7 @@ const ModelsTable = (modelsData) => {
         />
       }
       className='rounded-xl overflow-hidden'
-      size='middle'
+      size='default'
     />
   );
 };

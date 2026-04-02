@@ -35,6 +35,7 @@ const UserArea = ({
   isLoading,
   isMobile,
   isSelfUseMode,
+  registerEnabled = false,
   logout,
   navigate,
   t,
@@ -130,7 +131,7 @@ const UserArea = ({
             </Avatar>
             <span className='hidden md:inline'>
               <Typography.Text className='!text-xs !font-medium !text-semi-color-text-1 dark:!text-gray-300 mr-1'>
-                {userState.user.username}
+                {userState.user.display_name}
               </Typography.Text>
             </span>
             <ChevronDown
@@ -142,7 +143,7 @@ const UserArea = ({
       </div>
     );
   } else {
-    const showRegisterButton = !isSelfUseMode;
+    const showRegisterButton = !isSelfUseMode && registerEnabled;
 
     const commonSizingAndLayoutClass =
       'flex items-center justify-center !py-[10px] !px-1.5';

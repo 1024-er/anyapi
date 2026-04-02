@@ -390,7 +390,7 @@ function HeroCodeDemo({ t }) {
 }
 
 // ─── HeroSection ─────────────────────────────────────────────────────────────
-function HeroSection({ t, docsLink }) {
+function HeroSection({ t, docsLink, registerEnabled }) {
   return (
     <section className='relative pt-16 pb-12 md:pt-24 md:pb-12 overflow-hidden hero-glow'>
       <div className='absolute inset-0 -z-10 h-full w-full hero-grid-bg' />
@@ -404,13 +404,15 @@ function HeroSection({ t, docsLink }) {
         <p className='text-lg text-muted-foreground max-w-xl mx-auto my-8'>{t('hero_title3')}</p>
 
         <div className='flex flex-col sm:flex-row items-center justify-center gap-3 mb-12'>
-          <Link
-            to='/register'
-            className='inline-flex items-center justify-center gap-2 px-8 h-12 text-base font-medium rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors'
-          >
-            {t('开始使用')}
-            <ArrowRight className='w-4 h-4' />
-          </Link>
+          {registerEnabled && (
+            <Link
+              to='/register'
+              className='inline-flex items-center justify-center gap-2 px-8 h-12 text-base font-medium rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors'
+            >
+              {t('开始使用')}
+              <ArrowRight className='w-4 h-4' />
+            </Link>
+          )}
           {docsLink ? (
             <a
               href={docsLink}
@@ -513,7 +515,7 @@ function ModelsSection({ t }) {
 }
 
 // ─── PricingSection ──────────────────────────────────────────────────────────
-function PricingSection({ t }) {
+function PricingSection({ t, registerEnabled }) {
   return (
     <section id='pricing' className='py-12 md:py-16'>
       <div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
@@ -554,12 +556,14 @@ function PricingSection({ t }) {
                 </li>
               ))}
             </ul>
-            <Link
-              to='/register'
-              className='flex items-center justify-center w-full h-9 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-colors'
-            >
-              {t('开始')}
-            </Link>
+            {registerEnabled && (
+              <Link
+                to='/register'
+                className='flex items-center justify-center w-full h-9 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-colors'
+              >
+                {t('开始')}
+              </Link>
+            )}
           </div>
 
           {/* Credit packages */}
@@ -594,16 +598,18 @@ function PricingSection({ t }) {
                         ≈ {(pkg.inputTokens / 1_000_000).toFixed(1)}M input + {(pkg.outputTokens / 1_000_000).toFixed(1)}M output tokens
                       </p>
                     </div>
-                    <Link
-                      to='/register'
-                      className={`inline-flex items-center justify-center h-7 px-2.5 text-sm font-medium rounded-lg transition-colors ${
-                        pkg.isPopular
-                          ? 'bg-primary text-white hover:bg-primary/80'
-                          : 'border border-border bg-background hover:bg-muted text-foreground'
-                      }`}
-                    >
-                      {t('立即充值')}
-                    </Link>
+                    {registerEnabled && (
+                      <Link
+                        to='/register'
+                        className={`inline-flex items-center justify-center h-7 px-2.5 text-sm font-medium rounded-lg transition-colors ${
+                          pkg.isPopular
+                            ? 'bg-primary text-white hover:bg-primary/80'
+                            : 'border border-border bg-background hover:bg-muted text-foreground'
+                        }`}
+                      >
+                        {t('立即充值')}
+                      </Link>
+                    )}
                   </div>
                 </div>
               ))}
@@ -688,6 +694,7 @@ const Home = () => {
   const [noticeVisible, setNoticeVisible] = useState(false);
   const isMobile = useIsMobile();
   const docsLink = statusState?.status?.docs_link || '';
+  const registerEnabled = statusState?.status?.register_enabled !== false;
 
   const displayHomePageContent = async () => {
     setHomePageContent(
@@ -709,6 +716,18 @@ const Home = () => {
           iframe.onload = () => {
             iframe.contentWindow.postMessage({ themeMode: actualTheme }, '*');
             iframe.contentWindow.postMessage({ lang: i18n.language }, '*');
+            iframe.contentWindow.postMessage({ registerEnabled }, '*');
+            iframe.contentWindow.postMessage(
+              {
+                passwordRegisterEnabled:
+                  statusState?.status?.password_register_enabled !== false,
+                emailOnlyRegister: !!statusState?.status?.email_only_register,
+                emailVerification: !!statusState?.status?.email_verification,
+                registerRequireInviteCode:
+                  !!statusState?.status?.register_require_invite_code,
+              },
+              '*',
+            );
           };
         }
       }
@@ -752,7 +771,7 @@ const Home = () => {
       {homePageContentLoaded && homePageContent === '' ? (
         <div className='flex flex-col min-h-screen w-full overflow-x-hidden'>
           <main className='flex-1'>
-            <HeroSection t={t} docsLink={docsLink} />
+            <HeroSection t={t} docsLink={docsLink} registerEnabled={registerEnabled} />
             <ModelsSection t={t} />
             <FeaturesSection t={t} />
           </main>

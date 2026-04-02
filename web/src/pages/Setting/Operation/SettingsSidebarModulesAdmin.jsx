@@ -53,6 +53,8 @@ export default function SettingsSidebarModulesAdmin(props) {
       midjourney: true,
       task: true,
       topup: true,
+      invite: true,
+      tutorial: true,
     },
     personal: {
       enabled: true,
@@ -115,6 +117,8 @@ export default function SettingsSidebarModulesAdmin(props) {
         midjourney: true,
         task: true,
         topup: true,
+        invite: true,
+        tutorial: true,
       },
       personal: {
         enabled: true,
@@ -189,6 +193,8 @@ export default function SettingsSidebarModulesAdmin(props) {
             midjourney: true,
             task: true,
             topup: true,
+            invite: true,
+            tutorial: true,
           },
           personal: { enabled: true, topup: true, personal: true },
           admin: {
@@ -237,6 +243,16 @@ export default function SettingsSidebarModulesAdmin(props) {
         },
         { key: 'task', title: t('任务日志'), description: t('系统任务记录') },
         { key: 'topup', title: t('我的钱包'), description: t('余额充值管理') },
+        {
+          key: 'invite',
+          title: t('邀请奖励'),
+          description: t('邀请链接与奖励管理'),
+        },
+        {
+          key: 'tutorial',
+          title: t('使用教程'),
+          description: t('打开产品使用文档'),
+        },
       ],
     },
     {
@@ -386,7 +402,7 @@ export default function SettingsSidebarModulesAdmin(props) {
                       <div style={{ marginLeft: '16px' }}>
                         <Switch
                           checked={
-                            sidebarModulesAdmin[section.key]?.[module.key]
+                            sidebarModulesAdmin[section.key]?.[module.key] !== false
                           }
                           onChange={handleModuleChange(section.key, module.key)}
                           size='default'

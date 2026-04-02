@@ -158,15 +158,22 @@ const CardPro = ({
 
   const footerContent = renderFooter();
 
+  const cardProps = {
+    className: `table-scroll-card !rounded-2xl ${className}`,
+    title: headerContent,
+    footer: footerContent,
+    bordered,
+    style,
+    ...props,
+  };
+
+  if (shadows === 'hover' || shadows === 'always') {
+    cardProps.shadows = shadows;
+  }
+
   return (
     <Card
-      className={`table-scroll-card !rounded-2xl ${className}`}
-      title={headerContent}
-      footer={footerContent}
-      shadows={shadows}
-      bordered={bordered}
-      style={style}
-      {...props}
+      {...cardProps}
     >
       {children}
     </Card>
@@ -179,7 +186,7 @@ CardPro.propTypes = {
   // 样式相关
   className: PropTypes.string,
   style: PropTypes.object,
-  shadows: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+  shadows: PropTypes.oneOf(['hover', 'always']),
   bordered: PropTypes.bool,
   // 内容区域
   statsArea: PropTypes.node,

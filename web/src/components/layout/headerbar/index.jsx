@@ -120,6 +120,7 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
     { key: 'ru', label: 'Русский' },
     { key: 'vi', label: 'Tiếng Việt' },
   ];
+  const registerEnabled = statusState?.status?.register_enabled !== false;
 
   return (
     <header
@@ -267,15 +268,9 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
             {/* Auth buttons */}
             {userState.user ? (
               <div className='hidden md:flex items-center gap-2'>
-                <Link
-                  to='/console'
-                  className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white rounded-md transition-colors'
-                >
-                  {t('控制台')}
-                </Link>
                 <button
                   onClick={logout}
-                  className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white rounded-md transition-colors'
+                  className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors'
                 >
                   {t('logout')}
                 </button>
@@ -285,8 +280,7 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
                 {!isSelfUseMode && (
                   <Link
                     to='/login'
-                    className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white rounded-md transition-colors'
-                    style={{ background: 'oklch(0.55 0.20 264)' }}
+                    className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors'
                   >
                     {t('登录')}
                   </Link>
@@ -368,7 +362,7 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
                 >
                   {t('登录')}
                 </Link>
-                {!isSelfUseMode && (
+                {!isSelfUseMode && registerEnabled && (
                   <Link
                     to='/register'
                     className='flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-white rounded-md transition-colors'

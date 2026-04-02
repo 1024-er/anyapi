@@ -124,7 +124,7 @@ const RedemptionsTable = (redemptionsData) => {
           />
         }
         className='rounded-xl overflow-hidden'
-        size='middle'
+        size='default'
       />
 
       <DeleteRedemptionModal

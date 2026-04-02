@@ -39,6 +39,8 @@ export const DEFAULT_ADMIN_CONFIG = {
     midjourney: true,
     task: true,
     topup: true,
+    invite: true,
+    tutorial: true,
   },
   personal: {
     enabled: true,
