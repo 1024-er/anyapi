@@ -3,15 +3,25 @@ FROM oven/bun:latest AS builder
 
 # 降低 Vite/Rollup 并行度与进程数，减轻 Docker 构建时 OOM（宿主机可在 Docker Desktop 里调高内存上限）
 ENV VITE_LOW_MEMORY=1 \
-    GOMAXPROCS=2
+    GOMAXPROCS=2 \
+    NODE_OPTIONS="--max-old-space-size=4096"
 
 WORKDIR /build
-COPY web/package.json .
-COPY web/bun.lock .
-RUN bun install
-COPY ./web .
-COPY ./VERSION .
-RUN DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION=$(cat VERSION) bun run build
+
+# 先复制 lock 文件和 package.json
+COPY web/bun.lock web/package.json ./
+
+# 安装依赖（使用 --frozen-lockfile 确保一致性）
+RUN bun install --frozen-lockfile || bun install
+
+# 复制前端源代码
+COPY ./web/ ./
+
+# 复制 VERSION 文件
+COPY ./VERSION ../VERSION
+
+# 构建前端（添加错误处理和详细输出）
+RUN DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION=$(cat ../VERSION) bun run build 2>&1 || (echo "=== Build failed, checking files ===" && ls -la && cat package.json && exit 1)
 
 FROM golang:alpine AS builder2
 ENV GO111MODULE=on CGO_ENABLED=0
