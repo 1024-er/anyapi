@@ -102,6 +102,12 @@ func (p *GitHubProvider) ExchangeToken(ctx context.Context, code string, c *gin.
 	}, nil
 }
 
+type gitHubEmail struct {
+	Email    string `json:"email"`
+	Primary  bool   `json:"primary"`
+	Verified bool   `json:"verified"`
+}
+
 func (p *GitHubProvider) GetUserInfo(ctx context.Context, token *OAuthToken) (*OAuthUser, error) {
 	logger.LogDebug(ctx, "[OAuth-GitHub] GetUserInfo: fetching user info")
 
@@ -146,18 +152,81 @@ func (p *GitHubProvider) GetUserInfo(ctx context.Context, token *OAuthToken) (*O
 		return nil, NewOAuthError(i18n.MsgOAuthUserInfoEmpty, map[string]any{"Provider": "GitHub"})
 	}
 
+	// If email is empty from /user endpoint, fetch from /user/emails (for private emails)
+	email := githubUser.Email
+	if email == "" {
+		email = p.fetchGitHubEmail(ctx, token.AccessToken)
+	}
+
 	logger.LogDebug(ctx, "[OAuth-GitHub] GetUserInfo success: id=%d, login=%s, name=%s, email=%s",
-		githubUser.Id, githubUser.Login, githubUser.Name, githubUser.Email)
+		githubUser.Id, githubUser.Login, githubUser.Name, email)
 
 	return &OAuthUser{
 		ProviderUserID: strconv.FormatInt(githubUser.Id, 10), // Use numeric ID as primary identifier
 		Username:       githubUser.Login,
 		DisplayName:    githubUser.Name,
-		Email:          githubUser.Email,
+		Email:          email,
 		Extra: map[string]any{
 			"legacy_id": githubUser.Login, // Store login for migration from old accounts
 		},
 	}, nil
+}
+
+// fetchGitHubEmail fetches the primary verified email from GitHub's emails endpoint
+func (p *GitHubProvider) fetchGitHubEmail(ctx context.Context, accessToken string) string {
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://api.github.com/user/emails", nil)
+	if err != nil {
+		logger.LogWarn(ctx, "[OAuth-GitHub] fetchGitHubEmail: failed to create request")
+		return ""
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+
+	client := http.Client{
+		Timeout: 20 * time.Second,
+	}
+	res, err := client.Do(req)
+	if err != nil {
+		logger.LogWarn(ctx, fmt.Sprintf("[OAuth-GitHub] fetchGitHubEmail error: %s", err.Error()))
+		return ""
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		logger.LogWarn(ctx, fmt.Sprintf("[OAuth-GitHub] fetchGitHubEmail failed: status=%d", res.StatusCode))
+		return ""
+	}
+
+	var emails []gitHubEmail
+	err = json.NewDecoder(res.Body).Decode(&emails)
+	if err != nil {
+		logger.LogWarn(ctx, fmt.Sprintf("[OAuth-GitHub] fetchGitHubEmail decode error: %s", err.Error()))
+		return ""
+	}
+
+	// Find primary verified email
+	for _, e := range emails {
+		if e.Primary && e.Verified && e.Email != "" {
+			logger.LogDebug(ctx, "[OAuth-GitHub] fetchGitHubEmail: found primary verified email=%s", e.Email)
+			return e.Email
+		}
+	}
+
+	// If no primary verified email, return the first verified email
+	for _, e := range emails {
+		if e.Verified && e.Email != "" {
+			logger.LogDebug(ctx, "[OAuth-GitHub] fetchGitHubEmail: found verified email=%s", e.Email)
+			return e.Email
+		}
+	}
+
+	// Fallback: return first email
+	if len(emails) > 0 && emails[0].Email != "" {
+		logger.LogDebug(ctx, "[OAuth-GitHub] fetchGitHubEmail: using fallback email=%s", emails[0].Email)
+		return emails[0].Email
+	}
+
+	logger.LogWarn(ctx, "[OAuth-GitHub] fetchGitHubEmail: no email found")
+	return ""
 }
 
 func (p *GitHubProvider) IsUserIDTaken(providerUserID string) bool {
