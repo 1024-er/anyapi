@@ -13,8 +13,8 @@ services:
       - ./data:/data
       - ./logs:/app/logs
     environment:
-      # - SQL_DSN=postgresql://root:123456@postgres:5432/db_anyapi # ⚠️ IMPORTANT: Change the password in production!
-      - SQL_DSN=root:anyapi321@tcp(mysql:3306)/db_anyapi  # Point to the mysql service, uncomment if using MySQL
+      - SQL_DSN=postgresql://root:anyapi321@postgres:5432/db_anyapi # ⚠️ IMPORTANT: Change the password in production!
+      # - SQL_DSN=root:anyapi321@tcp(mysql:3306)/db_anyapi  # Point to the mysql service, uncomment if using MySQL
       - REDIS_CONN_STRING=redis://redis
       - TZ=Asia/Shanghai
       - ERROR_LOG_ENABLED=true # 是否启用错误日志记录 (Whether to enable error log recording)
@@ -28,8 +28,8 @@ services:
 
     depends_on:
       - redis
-      # - postgres
-      - mysql  # Uncomment if using MySQL
+      - postgres
+      # - mysql  # Uncomment if using MySQL
     networks:
       - anyapi-network
     healthcheck:
@@ -97,38 +97,38 @@ services:
     networks:
       - anyapi-network
 
-#   postgres:
-#     image: postgres:15
-#     container_name: postgres
-#     restart: always
-#     environment:
-#       POSTGRES_USER: root
-#       POSTGRES_PASSWORD: 123456  # ⚠️ IMPORTANT: Change this password in production!
-#       POSTGRES_DB: db_anyapi
-#     volumes:
-#       - pg_data:/var/lib/postgresql/data
-#     networks:
-#       - anyapi-network
-# #    ports:
-# #      - "5432:5432"  # Uncomment if you need to access PostgreSQL from outside Docker
-
-  mysql:
-    image: mysql:8.2
-    container_name: mysql
+  postgres:
+    image: postgres:15
+    container_name: postgres
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: anyapi321  # ⚠️ IMPORTANT: Change this password in production!
-      MYSQL_DATABASE: db_anyapi
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: anyapi321  # ⚠️ IMPORTANT: Change this password in production!
+      POSTGRES_DB: db_anyapi
     volumes:
-      - mysql_data:/var/lib/mysql
+      - pg_data:/var/lib/postgresql/data
     networks:
       - anyapi-network
     ports:
-      - "127.0.0.1:3306:3306"  # 仅本机访问；远程管理可用 SSH 隧道
+      - "5432:5432"  # Uncomment if you need to access PostgreSQL from outside Docker
+
+  # mysql:
+  #   image: mysql:8.2
+  #   container_name: mysql
+  #   restart: always
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: anyapi321  # ⚠️ IMPORTANT: Change this password in production!
+  #     MYSQL_DATABASE: db_anyapi
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #   networks:
+  #     - anyapi-network
+  #   ports:
+  #     - "127.0.0.1:3306:3306"  # 仅本机访问；远程管理可用 SSH 隧道
 
 volumes:
-  # pg_data:
-  mysql_data:
+  pg_data:
+  # mysql_data:
   letsencrypt:
 
 networks:
