@@ -42,34 +42,47 @@ const PricingVendors = ({
   const getAllVendors = React.useMemo(() => {
     const vendors = new Set();
     const vendorIcons = new Map();
+    const vendorCounts = new Map();
+    const vendorIds = new Map();
     let hasUnknownVendor = false;
 
     (allModels.length > 0 ? allModels : models).forEach((model) => {
       if (model.vendor_name) {
         vendors.add(model.vendor_name);
+        vendorCounts.set(model.vendor_name, (vendorCounts.get(model.vendor_name) || 0) + 1);
         if (model.vendor_icon && !vendorIcons.has(model.vendor_name)) {
           vendorIcons.set(model.vendor_name, model.vendor_icon);
+        }
+        if (model.vendor_id && !vendorIds.has(model.vendor_name)) {
+          vendorIds.set(model.vendor_name, model.vendor_id);
         }
       } else {
         hasUnknownVendor = true;
       }
     });
 
+    // 按供应商ID升序排列
+    const sortedVendors = Array.from(vendors).sort((a, b) => {
+      const idA = vendorIds.get(a) || 0;
+      const idB = vendorIds.get(b) || 0;
+      return idA - idB;
+    });
+
     return {
-      vendors: Array.from(vendors).sort(),
+      vendors: sortedVendors,
       vendorIcons,
+      vendorCounts,
       hasUnknownVendor,
     };
   }, [allModels, models]);
 
-  // 计算每个供应商的模型数量（基于当前过滤后的 models）
+  // 计算每个供应商的模型数量（基于当前过滤后的 models，排除未知供应商）
   const getVendorCount = React.useCallback(
     (vendor) => {
+      // 过滤掉没有 vendor_name 的模型（未知供应商的模型）
+      const validModels = models.filter((model) => model.vendor_name);
       if (vendor === 'all') {
-        return models.length;
-      }
-      if (vendor === 'unknown') {
-        return models.filter((model) => !model.vendor_name).length;
+        return validModels.length;
       }
       return models.filter((model) => model.vendor_name === vendor).length;
     },
@@ -99,14 +112,14 @@ const PricingVendors = ({
     });
 
     // 如果系统中存在未知供应商，添加"未知供应商"选项
-    if (getAllVendors.hasUnknownVendor) {
-      const count = getVendorCount('unknown');
-      result.push({
-        value: 'unknown',
-        label: t('未知供应商'),
-        tagCount: count,
-      });
-    }
+    // if (getAllVendors.hasUnknownVendor) {
+    //   const count = getVendorCount('unknown');
+    //   result.push({
+    //     value: 'unknown',
+    //     label: t('未知供应商'),
+    //     tagCount: count,
+    //   });
+    // }
 
     return result;
   }, [getAllVendors, getVendorCount, t]);

@@ -154,9 +154,9 @@ func updatePricing() {
 		}
 	}
 
-	// 预加载供应商
+	// 预加载供应商（只加载启用状态的）
 	var vendors []Vendor
-	_ = DB.Find(&vendors).Error
+	_ = DB.Where("status = 1").Find(&vendors).Error
 	vendorMap := make(map[int]*Vendor)
 	for i := range vendors {
 		vendorMap[vendors[i].Id] = &vendors[i]
@@ -285,6 +285,10 @@ func updatePricing() {
 		if meta, ok := metaMap[model]; ok {
 			// 若模型被禁用(status!=1)，则直接跳过，不返回给前端
 			if meta.Status != 1 {
+				continue
+			}
+			// 若供应商被禁用(status!=1)或不存在，也跳过
+			if meta.VendorID == 0 || vendorMap[meta.VendorID] == nil {
 				continue
 			}
 			pricing.Description = meta.Description

@@ -207,6 +207,7 @@ const PricingVendorIntro = memo(
               icon: model.vendor_icon,
               description: model.vendor_description,
               count: 1,
+              vendor_id: model.vendor_id,
             });
           }
         } else {
@@ -214,9 +215,11 @@ const PricingVendorIntro = memo(
         }
       });
 
-      const vendorList = Array.from(vendors.values()).sort((a, b) =>
-        a.name.localeCompare(b.name),
-      );
+      const vendorList = Array.from(vendors.values()).sort((a, b) => {
+        const idA = a.vendor_id || 0;
+        const idB = b.vendor_id || 0;
+        return idA - idB;
+      });
 
       if (unknownCount > 0) {
         vendorList.push({
