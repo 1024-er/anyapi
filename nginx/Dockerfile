@@ -1,19 +1,25 @@
 # Dockerfile
 FROM nginx:alpine
 
-# 使用国内镜像源并安装 certbot 及相关依赖
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
-    && apk update && apk add --no-cache \
+# 安装 certbot 及相关依赖
+RUN set -ex; \
+    # 启用 community 仓库（certbot 在 community 仓库中）
+    echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories; \
+    apk update && apk add --no-cache \
     python3 \
     py3-pip \
     bash \
     openssl \
     curl \
-    dcron \
-    && pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple \
-    && pip3 install --no-cache-dir --upgrade pip \
-    && pip3 install --no-cache-dir certbot certbot-nginx \
-    && rm -rf /var/cache/apk/*
+    dcron; \
+    # 尝试通过apk安装certbot，如果失败则使用pip安装
+    if apk add --no-cache certbot 2>/dev/null; then \
+        echo "certbot installed via apk"; \
+    else \
+        echo "certbot not available in apk, installing via pip"; \
+        pip3 install --no-cache-dir certbot; \
+    fi; \
+    rm -rf /var/cache/apk/*
 
 # 创建必要的目录
 RUN mkdir -p /etc/letsencrypt && \
