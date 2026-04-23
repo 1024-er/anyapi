@@ -23,14 +23,14 @@ RUN mkdir -p /etc/letsencrypt && \
 
 
 # 复制证书管理脚本
-COPY nginx/scripts/ /usr/local/scripts/
+COPY scripts/ /usr/local/scripts/
 RUN chmod +x /usr/local/scripts/*.sh
 
 # 设置证书自动续期（每天凌晨2点检查）
 RUN echo "0 2 * * * /usr/local/scripts/renew-cert.sh >> /var/log/cert-renew.log 2>&1" > /etc/crontabs/root
 
 # 复制默认的SSL参数配置
-COPY nginx/conf.d/ssl-params.conf /etc/nginx/conf.d/ssl-params.conf
+COPY conf.d/ssl-params.conf /etc/nginx/conf.d/ssl-params.conf
 
 # 暴露端口
 EXPOSE 80
