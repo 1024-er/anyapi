@@ -28,7 +28,7 @@ RUN chmod +x /usr/local/scripts/*.sh
 RUN echo "0 2 * * * /usr/local/scripts/renew-cert.sh >> /var/log/cert-renew.log 2>&1" > /etc/crontabs/root
 
 # 复制默认的SSL参数配置
-COPY nginx/ssl-params.conf /etc/nginx/conf.d/ssl-params.conf
+COPY nginx/conf.d/ssl-params.conf /etc/nginx/conf.d/ssl-params.conf
 
 # 暴露端口
 EXPOSE 80
