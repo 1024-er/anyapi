@@ -3,23 +3,35 @@ FROM nginx:alpine
 
 # 安装 certbot 及相关依赖
 RUN set -ex; \
-    # 启用 community 仓库（certbot 在 community 仓库中）
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories; \
+    # 首先更新镜像源
+    echo "https://mirrors.aliyun.com/alpine/latest-stable/main/" > /etc/apk/repositories; \
+    echo "https://mirrors.aliyun.com/alpine/latest-stable/community/" >> /etc/apk/repositories; \
+    # 安装基础依赖
     apk update && apk add --no-cache \
     python3 \
     py3-pip \
     bash \
     openssl \
     curl \
-    dcron; \
-    # 尝试通过apk安装certbot，如果失败则使用pip安装
-    if apk add --no-cache certbot 2>/dev/null; then \
-        echo "certbot installed via apk"; \
-    else \
-        echo "certbot not available in apk, installing via pip"; \
-        pip3 install --no-cache-dir certbot; \
-    fi; \
-    rm -rf /var/cache/apk/*
+    tzdata \
+    shadow \
+    su-exec \
+    dcron \
+    libffi-dev \
+    python3-dev \
+    openssl-dev \
+    gcc \
+    musl-dev \
+    libc-dev \
+    make; \
+    # 升级 pip
+    pip3 install --upgrade pip setuptools wheel; \
+    # 通过 pip 安装 certbot
+    pip3 install certbot certbot-nginx; \
+    # 创建 certbot 符号链接（确保在 PATH 中）
+    ln -s /usr/bin/python3 /usr/bin/python; \
+    # 清理缓存
+    rm -rf /var/cache/apk/* /tmp/* /root/.cache
 
 # 创建必要的目录
 RUN mkdir -p /etc/letsencrypt && \
