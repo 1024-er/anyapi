@@ -38,54 +38,33 @@ services:
       timeout: 10s
       retries: 3
 
-  docs:
-    build:
-      context: ./docs
-      dockerfile: Dockerfile
-    container_name: anyapi-docs
-    restart: always
-    expose:
-      - "3000"
-    environment:
-      - TZ=Asia/Shanghai
-      - NODE_ENV=production
-    networks:
-      - anyapi-network
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3000/',r=>process.exit(r.statusCode>=200&&r.statusCode<500?0:1)).on('error',()=>process.exit(1))\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
-
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    container_name: anyapi-nginx
-    restart: always
+  nginx-certbot:
+    build: .
+    container_name: nginx-anyapi
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
-    # Compose 会从项目根目录 .env 做变量替换。若 shell 里 export 了空的 CERTBOT_EMAIL，会覆盖 .env，导致容器内无邮箱、certbot 不跑。
-    # 若遇此情况请先执行：unset CERTBOT_EMAIL
-    environment:
-      CERTBOT_EMAIL: ${CERTBOT_EMAIL:-anyapipro@gmail.com}
-      CERTBOT_DOMAIN: ${CERTBOT_DOMAIN:-www.anyapi.pro}
-      CERTBOT_STAGING: ${CERTBOT_STAGING:-0}
-      # 手动续期：docker compose exec nginx renew-cert   强制：docker compose exec nginx renew-cert --force
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      # 证书输出目录（entrypoint 会写入 fullchain.pem / privkey.pem）
-      - ./nginx/certs:/etc/nginx/certs
-      - ./nginx/certbot-www:/var/www/certbot
-      # certbot 账户与证书链持久化
-      - letsencrypt:/etc/letsencrypt
+      # 挂载Nginx配置目录
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      # 挂载证书目录（双向同步）
+      - ./nginx/certs:/etc/nginx/ssl
+      - ./nginx/certs:/etc/letsencrypt
+      # 挂载站点文件
+      - ./anyapi:/var/www/anyapi
+      - ./docs:/var/www/docs
+      # 挂载脚本目录
+      - ./nginx/scripts:/usr/local/scripts
+      # 挂载日志目录
+      - ./logs:/var/log/nginx
+      - ./logs:/var/log/letsencrypt
+    environment:
+      - TZ=Asia/Shanghai
+      - EMAIL=tonystarkcba@gmail.com
+      - DOMAINS=www.anyapi.pro,docs.anyapi.pro
     depends_on:
       anyapi:
-        condition: service_healthy
-      docs:
         condition: service_healthy
     networks:
       - anyapi-network

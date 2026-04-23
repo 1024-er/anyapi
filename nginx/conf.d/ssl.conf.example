@@ -1,3 +1,0 @@
-# HTTPS 与证书路径已合并进 anyapi.conf。
-# 若需为 doc.anyapi.pro 也启用 HTTPS，可在此新增 server { listen 443 ssl; server_name doc.anyapi.pro; ... }
-# 证书建议放在：/etc/nginx/certs/doc.anyapi.pro/{fullchain.pem,privkey.pem}
