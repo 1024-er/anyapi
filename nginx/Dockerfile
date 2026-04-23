@@ -2,16 +2,16 @@
 FROM nginx:alpine
 
 # 安装 certbot 及相关依赖
-RUN apk add --no-cache \
-    certbot \
+RUN apk update && \
+    apk add --no-cache \
     python3 \
     py3-pip \
     bash \
     openssl \
     curl \
-    cronie && \
+    dcron && \
     pip3 install --upgrade pip && \
-    pip3 install certbot-nginx && \
+    pip3 install certbot certbot-nginx && \
     rm -rf /var/cache/apk/*
 
 # 创建必要的目录
@@ -37,4 +37,4 @@ EXPOSE 80
 EXPOSE 443
 
 # 启动服务
-CMD sh -c 'cron && nginx -g "daemon off;"'
+CMD sh -c 'crond && nginx -g "daemon off;"'
