@@ -2,29 +2,17 @@
 FROM nginx:alpine
 
 # 安装 certbot 及相关依赖
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    snapd \
+RUN apk add --no-cache \
+    certbot \
     python3 \
+    py3-pip \
     bash \
     openssl \
     curl \
-    cron \
-    ca-certificates \
-    && \
-    # 安装 snap core
-    snap install core && \
-    snap refresh core && \
-    # 安装 certbot
-    snap install --classic certbot && \
-    # 创建符号链接
-    ln -s /snap/bin/certbot /usr/bin/certbot && \
-    # 安装 nginx 插件
-    snap set certbot trust-plugin-with-root=ok && \
-    snap install certbot-dns-nginx && \
-    # 清理缓存
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    cronie && \
+    pip3 install --upgrade pip && \
+    pip3 install certbot-nginx && \
+    rm -rf /var/cache/apk/*
 
 # 创建必要的目录
 RUN mkdir -p /etc/letsencrypt && \
