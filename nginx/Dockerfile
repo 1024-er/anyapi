@@ -2,12 +2,7 @@
 FROM nginx:alpine
 
 # 安装 certbot 及相关依赖
-RUN set -ex; \
-    # 首先更新镜像源
-    echo "https://mirrors.aliyun.com/alpine/latest-stable/main/" > /etc/apk/repositories; \
-    echo "https://mirrors.aliyun.com/alpine/latest-stable/community/" >> /etc/apk/repositories; \
-    # 安装基础依赖
-    apk update && apk add --no-cache \
+RUN apk update && apk add --no-cache \
     python3 \
     py3-pip \
     bash \
