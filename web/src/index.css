@@ -282,6 +282,23 @@ code {
 .sidebar-section {
   padding-top: 12px;
 }
+.semi-form-field-label-text, .semi-button-content-right{
+  font-family: 'DM Sans', 'Helvetica Neue', Arial, 'Microsoft YaHei',
+    sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+.semi-button-content {
+  font-family: 'DM Sans', 'Helvetica Neue', Arial, 'Microsoft YaHei',
+    sans-serif;
+  font-size: 12px;
+}
+.semi-divider-with-text {
+  font-family: 'DM Sans', 'Helvetica Neue', Arial, 'Microsoft YaHei',
+    sans-serif;
+  font-size: 12px;
+  color: var(--semi-color-text-3);  
+}
 
 @media (max-width: 767px) {
   .sidebar-container {
@@ -1174,7 +1191,16 @@ html.dark .with-pastel-balls::before {
 .semi-datepicker-range-input {
   border-radius: 10px !important;
 }
-
+.semi-card-header-wrapper-title, .semi-tabs-tab-single.semi-tabs-tab, .semi-card .semi-empty-title .semi-empty-content .semi-table-row-head {
+  font-family: 'DM Sans', 'Helvetica Neue', Arial, 'Microsoft YaHei',
+    sans-serif;
+  font-size: 12px;
+}
+.semi-input::placeholder {
+  font-size: var(--input-placeholder-size);
+  color: var(--input-placeholder-color);
+  opacity: var(--input-placeholder-opacity);
+}
 /* ─── Login Page ───────────────────────────────────────────────────────────── */
 :root {
   --login-fg: oklch(0.13 0.004 285);
@@ -1182,6 +1208,9 @@ html.dark .with-pastel-balls::before {
   --login-border: oklch(0.91 0.008 264);
   --login-form-bg: oklch(1 0 0);
   --login-primary: oklch(0.55 0.20 264);
+  --input-placeholder-size: 12px;
+  --input-placeholder-color: #6b7280;
+  --input-placeholder-opacity: 0.8
 }
 
 body[theme-mode='dark'] {

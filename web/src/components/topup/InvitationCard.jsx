@@ -42,7 +42,7 @@ const InvitationCard = ({
   return (
     <Card className='!rounded-2xl shadow-sm border-0'>
       {/* 卡片头部 */}
-      <div className='flex items-center mb-4'>
+      {/* <div className='flex items-center mb-4'>
         <Avatar size='small' color='green' className='mr-3 shadow-md'>
           <Gift size={16} />
         </Avatar>
@@ -52,7 +52,7 @@ const InvitationCard = ({
           </Typography.Text>
           <div className='text-xs'>{t('邀请好友获得额外奖励')}</div>
         </div>
-      </div>
+      </div> */}
 
       {/* 收益展示区域 */}
       <Space vertical style={{ width: '100%' }}>

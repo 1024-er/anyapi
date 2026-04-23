@@ -446,7 +446,7 @@ const SiderBar = ({
         itemKey={item.itemKey}
         text={
           <span
-            className='truncate font-medium text-sm'
+            className='truncate font-medium text-xs'
             style={{ color: textColor }}
           >
             {item.text}
@@ -473,7 +473,7 @@ const SiderBar = ({
           itemKey={item.itemKey}
           text={
             <span
-              className='truncate font-medium text-sm'
+              className='truncate font-medium text-xs'
               style={{ color: textColor }}
             >
               {item.text}
@@ -514,14 +514,15 @@ const SiderBar = ({
   const currentLang = normalizeLanguage(i18n.language);
 
   const langMenuItems = [
-    { key: 'zh-CN', label: '简体中文' },
-    { key: 'zh-TW', label: '繁體中文' },
-    { key: 'en', label: 'English' },
-    { key: 'fr', label: 'Français' },
-    { key: 'ja', label: '日本語' },
-    { key: 'ru', label: 'Русский' },
-    { key: 'vi', label: 'Tiếng Việt' },
+    { key: 'zh-CN', label: '🇨🇳 简体' },
+    { key: 'zh-TW', label: '🇹🇼 繁體' },
+    { key: 'en', label: '🇺🇸 English' },
+    { key: 'fr', label: '🇫🇷 Français' },
+    { key: 'ja', label: '🇯🇵 日本語' },
+    { key: 'ru', label: '🇷🇺 Русский' },
+    { key: 'vi', label: '🇻🇳 Tiếng Việt' },
   ];
+  const currentLangItem = langMenuItems.find(item => item.key === currentLang) || langMenuItems[0];
 
   return (
     <div
@@ -699,12 +700,12 @@ const SiderBar = ({
                 }
               >
                 <Button
-                  icon={<Languages size={16} />}
+                  icon={<span className="text-lg">{currentLangItem.label.split(' ')[0]}</span>}
                   theme='borderless'
                   type='tertiary'
                   size='small'
                   className='sidebar-action-btn'
-                  aria-label={t('切换语言')}
+                  aria-label={`${t('切换语言')} (${currentLangItem.label})`}
                 />
               </Dropdown>
               <Button

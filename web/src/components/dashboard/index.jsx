@@ -237,7 +237,7 @@ const Dashboard = () => {
           />
         </div>
       </Modal>
-
+{/* 
       <DashboardHeader
         getGreeting={dashboardData.getGreeting}
         greetingVisible={dashboardData.greetingVisible}
@@ -245,7 +245,7 @@ const Dashboard = () => {
         refresh={handleRefresh}
         loading={dashboardData.loading}
         t={dashboardData.t}
-      />
+      /> */}
 
       <SearchModal
         searchModalVisible={dashboardData.searchModalVisible}
@@ -276,10 +276,54 @@ const Dashboard = () => {
           <ChartsPanel
             activeChartTab={dashboardData.activeChartTab}
             setActiveChartTab={dashboardData.setActiveChartTab}
-            spec_line={dashboardCharts.spec_line}
-            spec_model_line={dashboardCharts.spec_model_line}
-            spec_pie={dashboardCharts.spec_pie}
-            spec_rank_bar={dashboardCharts.spec_rank_bar}
+            spec_line={{
+              ...dashboardCharts.spec_line,
+              title: {
+                ...dashboardCharts.spec_line?.title,
+                textStyle: {
+                  ...dashboardCharts.spec_line?.title?.textStyle,
+                  fontSize: 12, // 修改字体大小
+                  color: '#666', // 修改字体颜色
+                  fontWeight: 'bold' // 修改字体粗细
+                }
+              }
+            }}
+            spec_model_line={{
+              ...dashboardCharts.spec_model_line,
+              title: {
+                ...dashboardCharts.spec_line?.title,
+                textStyle: {
+                  ...dashboardCharts.spec_line?.title?.textStyle,
+                  fontSize: 12, // 修改字体大小
+                  color: '#666', // 修改字体颜色
+                  fontWeight: 'bold' // 修改字体粗细
+                }
+              }
+            }}
+            spec_pie={{
+              ...dashboardCharts.spec_pie,
+              title: {
+                ...dashboardCharts.spec_line?.title,
+                textStyle: {
+                  ...dashboardCharts.spec_line?.title?.textStyle,
+                  fontSize: 12, // 修改字体大小
+                  color: '#666', // 修改字体颜色
+                  fontWeight: 'bold' // 修改字体粗细
+                }
+              }
+            }}
+            spec_rank_bar={{
+              ...dashboardCharts.spec_rank_bar,
+              title: {
+                ...dashboardCharts.spec_line?.title,
+                textStyle: {
+                  ...dashboardCharts.spec_line?.title?.textStyle,
+                  fontSize: 12, // 修改字体大小
+                  color: '#666', // 修改字体颜色
+                  fontWeight: 'bold' // 修改字体粗细
+                }
+              }
+            }}
             CARD_PROPS={CARD_PROPS}
             CHART_CONFIG={CHART_CONFIG}
             FLEX_CENTER_GAP2={FLEX_CENTER_GAP2}
@@ -287,7 +331,7 @@ const Dashboard = () => {
             t={dashboardData.t}
           />
 
-          {dashboardData.hasApiInfoPanel && (
+          {/* {dashboardData.hasApiInfoPanel && (
             <ApiInfoPanel
               apiInfoData={apiInfoData}
               handleCopyUrl={(url) => handleCopyUrl(url, dashboardData.t)}
@@ -297,14 +341,14 @@ const Dashboard = () => {
               ILLUSTRATION_SIZE={ILLUSTRATION_SIZE}
               t={dashboardData.t}
             />
-          )}
+          )} */}
         </div>
       </div>
 
       {/* 系统公告和常见问答卡片 */}
       {dashboardData.hasInfoPanels && (
         <div className='mb-4'>
-          <div className='grid grid-cols-1 lg:grid-cols-4 gap-4'>
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
             {/* 公告卡片 */}
             {dashboardData.announcementsEnabled && (
               <AnnouncementsPanel
@@ -333,7 +377,7 @@ const Dashboard = () => {
             )}
 
             {/* 服务可用性卡片 */}
-            {dashboardData.uptimeEnabled && (
+            {/* {dashboardData.uptimeEnabled && (
               <UptimePanel
                 uptimeData={dashboardData.uptimeData}
                 uptimeLoading={dashboardData.uptimeLoading}
@@ -358,7 +402,7 @@ const Dashboard = () => {
                 ILLUSTRATION_SIZE={ILLUSTRATION_SIZE}
                 t={dashboardData.t}
               />
-            )}
+            )} */}
           </div>
         </div>
       )}

@@ -643,11 +643,11 @@ const RegisterForm = () => {
       <div className='flex flex-col items-center'>
         <div className='w-full max-w-md'>
           <Card className='border-0 !rounded-2xl overflow-hidden'>
-            <div className='flex justify-center pt-6 pb-2'>
+            {/* <div className='flex justify-center pt-6 pb-2'>
               <Title heading={3} className='text-gray-800 dark:text-gray-200'>
                 {t('注 册')}
               </Title>
-            </div>
+            </div> */}
             <div className='px-2 py-8'>
               <Form className='space-y-3'>
                 {passwordRegisterEnabled && !emailOnlyRegister && (
@@ -716,6 +716,7 @@ const RegisterForm = () => {
                       </Button>
                     ) : undefined
                   }
+                  labelPosition="left"
                 />
 
                 {((emailOnlyRegister && verificationCodeSent) ||
@@ -787,7 +788,7 @@ const RegisterForm = () => {
                   <div className='space-y-2 pt-2'>
                     <Button
                       theme='solid'
-                      className='w-full !rounded-full'
+                      className='w-full !rounded-lg'
                       type='primary'
                       htmlType='submit'
                       onClick={handleSubmit}
@@ -821,10 +822,10 @@ const RegisterForm = () => {
 
               <div className='mt-6 text-center text-sm'>
                 <Text>
-                  {t('已有账户？')}{' '}
+                  <span className='text-xs'>{t('已有账户？')}{' '}</span>
                   <Link
                     to='/login'
-                    className='text-blue-600 hover:text-blue-800 font-medium'
+                    className='text-blue-600 hover:text-blue-800 font-medium text-xs'
                   >
                     {t('登录')}
                   </Link>

@@ -397,7 +397,7 @@ function HeroSection({ t, docsLink, registerEnabled }) {
       <div className='absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-primary/10 blur-[120px] -z-10 pointer-events-none' />
 
       <div className='max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center'>
-        <h1 className='text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1] text-foreground'>
+        <h1 className='text-[1.5em] sm:text-[1.75rem] md:text-[2.5rem] lg:text-[3rem] font-extrabold tracking-tight mb-6 leading-[1.1] text-foreground'>
           {t('hero_title1')}{' '}
           <span className='gradient-text'>{t('hero_title2')}</span>
         </h1>

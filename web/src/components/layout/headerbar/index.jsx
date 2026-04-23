@@ -112,14 +112,15 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
     theme === 'dark' ? <Moon size={16} /> : theme === 'light' ? <Sun size={16} /> : <Monitor size={16} />;
 
   const langItems = [
-    { key: 'zh-CN', label: '简体中文' },
-    { key: 'zh-TW', label: '繁體中文' },
-    { key: 'en', label: 'English' },
-    { key: 'fr', label: 'Français' },
-    { key: 'ja', label: '日本語' },
-    { key: 'ru', label: 'Русский' },
-    { key: 'vi', label: 'Tiếng Việt' },
+    { key: 'zh-CN', label: '🇨🇳 简体中文' },
+    { key: 'zh-TW', label: '🇹🇼 繁體中文' },
+    { key: 'en', label: '🇺🇸 English' },
+    { key: 'fr', label: '🇫🇷 Français' },
+    { key: 'ja', label: '🇯🇵 日本語' },
+    { key: 'ru', label: '🇷🇺 Русский' },
+    { key: 'vi', label: '🇻🇳 Tiếng Việt' },
   ];
+  const currentLangItem = langItems.find(item => item.key === currentLang) || langItems[0];
   const registerEnabled = statusState?.status?.register_enabled !== false;
 
   return (
@@ -210,21 +211,21 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
                   <Dropdown.Item
                     icon={<Sun size={16} />}
                     onClick={() => handleThemeToggle('light')}
-                    className={theme === 'light' ? '!bg-semi-color-primary-light-default !font-semibold' : ''}
+                    className={theme === 'light' ? '!bg-semi-color-primary-light-default !font-semibold text-xs' : 'text-xs'}
                   >
                     {t('浅色模式')}
                   </Dropdown.Item>
                   <Dropdown.Item
                     icon={<Moon size={16} />}
                     onClick={() => handleThemeToggle('dark')}
-                    className={theme === 'dark' ? '!bg-semi-color-primary-light-default !font-semibold' : ''}
+                    className={theme === 'dark' ? '!bg-semi-color-primary-light-default !font-semibold text-xs' : 'text-xs'}
                   >
                     {t('深色模式')}
                   </Dropdown.Item>
                   <Dropdown.Item
                     icon={<Monitor size={16} />}
                     onClick={() => handleThemeToggle('auto')}
-                    className={theme === 'auto' ? '!bg-semi-color-primary-light-default !font-semibold' : ''}
+                    className={theme === 'auto' ? '!bg-semi-color-primary-light-default !font-semibold text-xs': 'text-xs'}
                   >
                     {t('自动模式')}
                   </Dropdown.Item>
@@ -232,7 +233,7 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
               }
             >
               <button
-                className='hidden md:inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-muted transition-colors'
+                className='hidden md:inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-muted transition-colors text-xs'
                 aria-label={t('切换主题')}
               >
                 {themeIcon}
@@ -248,7 +249,7 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
                     <Dropdown.Item
                       key={item.key}
                       onClick={() => handleLanguageChange(item.key)}
-                      className={currentLang === item.key ? '!bg-semi-color-primary-light-default !font-semibold' : ''}
+                      className={currentLang === item.key ? '!bg-semi-color-primary-light-default !font-semibold text-xs' : 'text-xs'}
                     >
                       {item.label}
                     </Dropdown.Item>
@@ -257,10 +258,10 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
               }
             >
               <button
-                className='hidden md:inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-muted transition-colors'
+                className='hidden md:inline-flex items-center justify-center h-8 px-3 rounded-lg hover:bg-muted transition-colors text-xs'
                 aria-label={t('切换语言')}
               >
-                <Languages size={16} />
+                {currentLangItem.label}
               </button>
             </Dropdown>
 
@@ -270,7 +271,7 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
               <div className='hidden md:flex items-center gap-2'>
                 <button
                   onClick={logout}
-                  className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors'
+                  className='inline-flex items-center justify-center px-3 py-1.5 text-xs rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors'
                 >
                   {t('logout')}
                 </button>
@@ -280,7 +281,7 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
                 {!isSelfUseMode && (
                   <Link
                     to='/login'
-                    className='inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors'
+                    className='inline-flex items-center justify-center px-3 py-1.5 text-xs rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors'
                   >
                     {t('登录')}
                   </Link>

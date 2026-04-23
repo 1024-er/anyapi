@@ -126,27 +126,29 @@ const PasswordResetForm = () => {
           <div className='flex flex-col items-center'>
             <div className='w-full max-w-md'>
               <Card className='border-0 !rounded-2xl overflow-hidden'>
-                <div className='flex justify-center pt-6 pb-2'>
+                {/* <div className='flex justify-center pt-6 pb-2'>
                   <Title heading={3} className='text-gray-800 dark:text-gray-200'>
                     {t('密码重置')}
                   </Title>
-                </div>
+                </div> */}
                 <div className='px-2 py-8'>
                   <Form className='space-y-3'>
                     <Form.Input
                       field='email'
                       label={t('邮箱')}
+                      className='!rounded-lg'
                       placeholder={t('请输入您的邮箱地址')}
                       name='email'
                       value={email}
                       onChange={handleChange}
                       prefix={<IconMail />}
+                      labelPosition='left'
                     />
 
                     <div className='space-y-2 pt-2'>
                       <Button
                         theme='solid'
-                        className='w-full !rounded-full'
+                        className='w-full !rounded-lg'
                         type='primary'
                         htmlType='submit'
                         onClick={handleSubmit}
@@ -160,12 +162,12 @@ const PasswordResetForm = () => {
                     </div>
                   </Form>
 
-                  <div className='mt-6 text-center text-sm'>
+                  <div className='mt-6 text-center text-xs'>
                     <Text>
-                      {t('想起来了？')}{' '}
+                      <span className='text-xs'>{t('想起来了？')}{' '}</span>
                       <Link
                         to='/login'
-                        className='text-blue-600 hover:text-blue-800 font-medium'
+                        className='text-blue-600 hover:text-blue-800 text-xs font-medium'
                       >
                         {t('登录')}
                       </Link>

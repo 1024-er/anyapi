@@ -578,11 +578,11 @@ const LoginForm = () => {
       <div className='flex flex-col items-center'>
         <div className='w-full max-w-md'>
           <Card className='border-0 !rounded-2xl overflow-hidden'>
-            <div className='flex justify-center pt-6 pb-2'>
+            {/* <div className='flex justify-center pt-6 pb-2'>
               <Title heading={3} className='text-gray-800 dark:text-gray-200'>
                 {t('登 录')}
               </Title>
-            </div>
+            </div> */}
             <div className='px-2 py-8'>
               <div className='space-y-3'>
                 {status.wechat_login && (
@@ -748,12 +748,12 @@ const LoginForm = () => {
               )}
 
               {showRegisterEntry && (
-                <div className='mt-6 text-center text-sm'>
+                <div className='mt-6 text-center text-xs'>
                   <Text>
                     {t('没有账户？')}{' '}
                     <Link
                       to='/register'
-                      className='text-blue-600 hover:text-blue-800 font-medium'
+                      className='text-blue-600 hover:text-blue-800 text-xs font-medium'
                     >
                       {t('注册')}
                     </Link>
@@ -777,11 +777,11 @@ const LoginForm = () => {
           </div> */}
 
           <Card className='border-0 !rounded-2xl overflow-hidden'>
-            <div className='flex justify-center pt-6 pb-2'>
+            {/* <div className='flex justify-center pt-6 pb-2'>
               <Title heading={3} className='text-gray-800 dark:text-gray-200'>
                 {t('登 录')}
               </Title>
-            </div>
+            </div> */}
             <div className='px-2 py-8'>
               {status.passkey_login && passkeySupported && (
                 <Button
@@ -798,29 +798,33 @@ const LoginForm = () => {
               <Form className='space-y-3'>
                 <Form.Input
                   field='username'
-                  label={t('用户名或邮箱')}
-                  // placeholder={t('请输入您的邮箱或用户名')}
+                  label={t('邮箱')}
+                  placeholder={t('请输入您的邮箱地址')}
                   name='username'
+                  className='!rounded-lg'
                   onChange={(value) => handleChange('username', value)}
                   prefix={<IconMail />}
+                  labelPosition="left"  // 设置 label 位置在左侧
                 />
 
                 <Form.Input
                   field='password'
                   label={t('密码')}
-                  // placeholder={t('请输入您的密码')}
+                  placeholder={t('请输入您的密码')}
                   name='password'
                   mode='password'
+                  className='!rounded-lg'
                   onChange={(value) => handleChange('password', value)}
                   prefix={<IconLock />}
                   suffix={
                     <Link
                       to='/reset'
-                      className='mr-2 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800'
+                      className='mr-2 whitespace-nowrap text-xs font-medium text-blue-600 hover:text-blue-800'
                     >
                       {t('忘记密码？')}
                     </Link>
                   }
+                  labelPosition="left"  // 设置 label 位置在左侧
                 />
 
                 {(hasUserAgreement || hasPrivacyPolicy) && (
@@ -864,7 +868,7 @@ const LoginForm = () => {
                 <div className='space-y-2 pt-2'>
                   <Button
                     theme='solid'
-                    className='w-full !rounded-full'
+                    className='w-full !rounded-lg'
                     type='primary'
                     htmlType='submit'
                     onClick={handleSubmit}
@@ -878,7 +882,7 @@ const LoginForm = () => {
 
               {hasOAuthLoginOptions && (
                 <>
-                  <Divider margin='12px' align='center'>
+                  <Divider margin='12px' align='center' >
                     {t('或')}
                   </Divider>
 
@@ -913,7 +917,7 @@ const LoginForm = () => {
                     {status.github_oauth && (
                       <Button
                         theme='outline'
-                        className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                        className='w-full h-12 flex items-center justify-center !rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors'
                         type='tertiary'
                         icon={<IconGithubLogo size='large' />}
                         onClick={handleGitHubClick}
@@ -984,7 +988,7 @@ const LoginForm = () => {
                         <Button
                           key={provider.slug}
                           theme='outline'
-                          className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                          className='w-full h-12 flex items-center justify-center !rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors'
                           type='tertiary'
                           icon={getOAuthProviderIcon(provider.icon || '', 20)}
                           onClick={() => handleCustomOAuthClick(provider)}
@@ -1011,10 +1015,10 @@ const LoginForm = () => {
               {showRegisterEntry && (
                 <div className='mt-6 text-center text-sm'>
                   <Text>
-                    {t('没有账户？')}{' '}
+                    <span className='text-xs'>{t('没有账户？')}{' '}</span>
                     <Link
                       to='/register'
-                      className='text-blue-600 hover:text-blue-800 font-medium'
+                      className='text-blue-600 hover:text-blue-800 font-medium text-xs'
                     >
                       {t('注册')}
                     </Link>
@@ -1062,6 +1066,7 @@ const LoginForm = () => {
             onChange={(value) =>
               handleChange('wechat_verification_code', value)
             }
+            labelClassName="text-sm"
           />
         </Form>
       </Modal>

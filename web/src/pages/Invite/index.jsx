@@ -154,7 +154,7 @@ const Invite = () => {
     const res = await API.get('/api/user/aff');
     const { success, message, data } = res.data;
     if (success) {
-      setAffLink(`${window.location.origin}/register?aff=${encodeURIComponent(data)}`);
+      setAffLink(`${window.location.origin}/login?aff=${encodeURIComponent(data)}`);
     } else {
       showError(message);
     }
@@ -218,7 +218,7 @@ const Invite = () => {
 
   return (
     <div className='mt-[60px] px-2'>
-      <div className='grid grid-cols-1 xl:grid-cols-[minmax(0,1.4fr)_360px] gap-4 items-start'>
+<     div className='grid  grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4 items-start'>
         <div className='space-y-4'>
           <InvitationCard
             t={t}

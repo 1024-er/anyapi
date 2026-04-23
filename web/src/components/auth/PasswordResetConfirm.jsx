@@ -151,8 +151,10 @@ const PasswordResetConfirm = () => {
                       label={t('邮箱')}
                       name='email'
                       disabled={true}
+                      className='!rounded-lg'
                       prefix={<IconMail />}
                       placeholder={email ? '' : t('等待获取邮箱信息...')}
+                      labelPosition='left'
                     />
 
                     {newPassword && (
@@ -162,6 +164,7 @@ const PasswordResetConfirm = () => {
                         name='newPassword'
                         disabled={true}
                         prefix={<IconLock />}
+                        labelPosition='left'
                         suffix={
                           <Button
                             icon={<IconCopy />}
@@ -183,7 +186,7 @@ const PasswordResetConfirm = () => {
                     <div className='space-y-2 pt-2'>
                       <Button
                         theme='solid'
-                        className='w-full !rounded-full'
+                        className='w-full !rounded-lg'
                         type='primary'
                         htmlType='submit'
                         onClick={handleSubmit}
@@ -201,7 +204,7 @@ const PasswordResetConfirm = () => {
                     <Text>
                       <Link
                         to='/login'
-                        className='text-blue-600 hover:text-blue-800 font-medium'
+                        className='text-blue-600 hover:text-blue-800 font-medium text-xs'
                       >
                         {t('返回登录')}
                       </Link>
