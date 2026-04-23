@@ -1,9 +1,9 @@
-# 对外入口：nginx（80/443）→ anyapi、docs。主站 www.anyapi.pro，文档 doc.anyapi.pro
 services:
   anyapi:
     build:
       context: ./
       dockerfile: Dockerfile
+    image: anyapi
     container_name: anyapi
     restart: always
     command: --log-dir /app/logs
@@ -39,7 +39,7 @@ services:
       retries: 3
 
   nginx-certbot:
-    build: .
+    build: ./nginx
     container_name: nginx-anyapi
     restart: unless-stopped
     ports:
