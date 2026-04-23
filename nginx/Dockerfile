@@ -18,7 +18,9 @@ RUN apk add --no-cache \
 RUN mkdir -p /etc/letsencrypt && \
     mkdir -p /var/www/certbot && \
     mkdir -p /etc/nginx/ssl && \
-    mkdir -p /usr/local/scripts
+    mkdir -p /usr/local/scripts && \
+    mkdir -p /etc/nginx/conf.d
+
 
 # 复制证书管理脚本
 COPY nginx/scripts/ /usr/local/scripts/
