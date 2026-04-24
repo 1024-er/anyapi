@@ -25,12 +25,23 @@ COPY . .
 COPY --from=builder /build/dist ./web/dist
 RUN go build -ldflags "-s -w -X 'github.com/QuantumNous/new-api/common.Version=$(cat VERSION)'" -o anyapi
 
+# 检查生成的可执行文件
+RUN ls -la anyapi && file anyapi
+
 FROM debian:bookworm-slim@sha256:f06537653ac770703bc45b4b113475bd402f451e85223f0f2837acbf89ab020a
 
+# 安装必要的运行时依赖
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates tzdata libasan8 wget \
     && rm -rf /var/lib/apt/lists/* \
     && update-ca-certificates
+
+# 设置时区
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# 创建应用目录
+RUN mkdir -p /app/logs
 
 COPY --from=builder2 /build/anyapi /anyapi
 
@@ -41,7 +52,7 @@ RUN chmod +x /anyapi
 RUN ls -la /anyapi && file /anyapi
 
 # 设置工作目录
-WORKDIR /data
+WORKDIR /app
 
 EXPOSE 3000
 
@@ -49,4 +60,8 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:3000/health || exit 1
 
+# 设置入口点
 ENTRYPOINT ["/anyapi"]
+
+# 默认参数
+CMD ["--log-dir", "/app/logs"]
