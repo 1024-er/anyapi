@@ -1,20 +1,22 @@
+version: '3.4' # For compatibility with older Docker versions
+
 services:
   anyapi:
+    # 使用本地 Dockerfile 构建而不是远程镜像
     build:
-      context: ./
-      dockerfile: Dockerfile
-    image: anyapi
+      context: .  
+      dockerfile: Dockerfile  
     container_name: anyapi
     restart: always
-    # command: --log-dir /app/logs
-    expose:
-      - "3000"
+    command: --log-dir /app/logs
+    ports:
+      - "3000:3000"
     volumes:
       - ./data:/data
       - ./logs:/app/logs
     environment:
-      # - SQL_DSN=postgresql://root:anyapi321@postgres:5432/db_anyapi # ⚠️ IMPORTANT: Change the password in production!
-      # - SQL_DSN=root:anyapi321@tcp(mysql:3306)/db_anyapi  # Point to the mysql service, uncomment if using MySQL
+      - SQL_DSN=postgresql://root:anyapi321@postgres:5432/db_anyapi # ⚠️ IMPORTANT: Change the password in production!
+#      - SQL_DSN=root:123456@tcp(mysql:3306)/db_anyapi  # Point to the mysql service, uncomment if using MySQL
       - REDIS_CONN_STRING=redis://redis
       - TZ=Asia/Shanghai
       - ERROR_LOG_ENABLED=true # 是否启用错误日志记录 (Whether to enable error log recording)
@@ -29,7 +31,7 @@ services:
     depends_on:
       - redis
       - postgres
-      # - mysql  # Uncomment if using MySQL
+#      - mysql  # Uncomment if using MySQL
     networks:
       - anyapi-network
     healthcheck:
@@ -37,10 +39,11 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
+      
   nginx-certbot:
-    build: ./nginx
-    image: nginx-anyapi
+    build: 
+      context: ./nginx  
+      dockerfile: Dockerfile  
     container_name: nginx-anyapi
     restart: unless-stopped
     ports:
@@ -92,27 +95,24 @@ services:
     ports:
       - "5432:5432"  # Uncomment if you need to access PostgreSQL from outside Docker
 
-  # mysql:
-  #   image: mysql:8.2
-  #   container_name: mysql
-  #   restart: always
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: anyapi321  # ⚠️ IMPORTANT: Change this password in production!
-  #     MYSQL_DATABASE: db_anyapi
-  #   volumes:
-  #     - mysql_data:/var/lib/mysql
-  #   networks:
-  #     - anyapi-network
-  #   ports:
-  #     - "127.0.0.1:3306:3306"  # 仅本机访问；远程管理可用 SSH 隧道
+#  mysql:
+#    image: mysql:8.2
+#    container_name: mysql
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: anyapi321  # ⚠️ IMPORTANT: Change this password in production!
+#      MYSQL_DATABASE: db_anyapi
+#    volumes:
+#      - mysql_data:/var/lib/mysql
+#    networks:
+#      - anyapi-network
+#    ports:
+#      - "3306:3306"  # Uncomment if you need to access MySQL from outside Docker
 
 volumes:
   pg_data:
-  # mysql_data:
-  letsencrypt:
+#  mysql_data:
 
 networks:
   anyapi-network:
-    # external: true
-    # name: anyapi-network
     driver: bridge
