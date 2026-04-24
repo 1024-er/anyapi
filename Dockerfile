@@ -33,8 +33,13 @@ RUN apt-get update \
     && update-ca-certificates
 
 COPY --from=builder2 /build/anyapi /anyapi
+
 # 设置权限
 RUN chmod +x /anyapi
+
+# 调试：检查复制后的文件
+RUN ls -la /anyapi && file /anyapi
+
 # 设置工作目录
 WORKDIR /data
 
