@@ -6,14 +6,14 @@ services:
     image: anyapi
     container_name: anyapi
     restart: always
-    command: --log-dir /app/logs
+    # command: --log-dir /app/logs
     expose:
       - "3000"
     volumes:
       - ./data:/data
       - ./logs:/app/logs
     environment:
-      - SQL_DSN=postgresql://root:anyapi321@postgres:5432/db_anyapi # ⚠️ IMPORTANT: Change the password in production!
+      # - SQL_DSN=postgresql://root:anyapi321@postgres:5432/db_anyapi # ⚠️ IMPORTANT: Change the password in production!
       # - SQL_DSN=root:anyapi321@tcp(mysql:3306)/db_anyapi  # Point to the mysql service, uncomment if using MySQL
       - REDIS_CONN_STRING=redis://redis
       - TZ=Asia/Shanghai
@@ -113,6 +113,6 @@ volumes:
 
 networks:
   anyapi-network:
-    external: true
-    name: anyapi-network
+    # external: true
+    # name: anyapi-network
     driver: bridge

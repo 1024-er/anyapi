@@ -32,7 +32,16 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && update-ca-certificates
 
-COPY --from=builder2 /build/anyapi /
-EXPOSE 3000
+COPY --from=builder2 /build/anyapi /anyapi
+# 设置权限
+RUN chmod +x /anyapi
+# 设置工作目录
 WORKDIR /data
+
+EXPOSE 3000
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
 ENTRYPOINT ["/anyapi"]
