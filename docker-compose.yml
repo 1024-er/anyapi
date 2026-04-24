@@ -1,4 +1,4 @@
-version: '3.4' # For compatibility with older Docker versions
+version: '3.8'
 
 services:
   anyapi:
@@ -42,8 +42,8 @@ services:
       
   nginx-certbot:
     build: 
-      context: ./nginx  
-      dockerfile: Dockerfile  
+      context: ./ 
+      dockerfile: Dockerfile.nginx
     container_name: nginx-anyapi
     restart: unless-stopped
     ports:
@@ -56,8 +56,8 @@ services:
       - ./nginx/certs:/etc/nginx/ssl
       - ./nginx/certs:/etc/letsencrypt
       # 挂载站点文件
-      - ./anyapi:/var/www/anyapi
-      - ./docs:/var/www/docs
+      # - ./www:/var/www/anyapi
+      # - ./docs:/var/www/docs
       # 挂载脚本目录
       - ./nginx/scripts:/usr/local/scripts
       # 挂载日志目录
@@ -67,11 +67,17 @@ services:
       - TZ=Asia/Shanghai
       - EMAIL=tonystarkcba@gmail.com
       - DOMAINS=www.anyapi.pro,docs.anyapi.pro
-    depends_on:
-      anyapi:
-        condition: service_healthy
+    # depends_on:
+    #   anyapi:
+    #     condition: service_healthy
     networks:
       - anyapi-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health-check"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
 
   redis:
     image: redis:latest

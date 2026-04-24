@@ -1,0 +1,90 @@
+# Dockerfile
+# 多阶段构建：构建阶段
+FROM oven/bun:1@sha256:0733e50325078969732ebe3b15ce4c4be5082f18c4ac1a0f0ca4839c2e4e42a7 AS base
+
+FROM base AS www-builder
+
+WORKDIR /build/www
+COPY web/package.json .
+COPY web/bun.lock .
+RUN bun install
+
+COPY web .
+COPY VERSION .
+RUN DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION=$(cat VERSION) bun run build
+RUN mkdir -p /app/dist/www && cp -r ./dist/* /app/dist/www/
+
+
+# 构建docs.anyapi.pro
+FROM base AS docs-builder
+WORKDIR /build/docs
+COPY web2/package.json .
+COPY web2/bun.lock .
+RUN bun install
+
+COPY web2 .
+RUN  bun run build
+RUN mkdir -p /app/dist/docs && cp -r ./dist/* /app/dist/docs/
+
+# 最终阶段：Nginx + Certbot
+FROM nginx:alpine
+
+# 安装 certbot 及相关依赖
+RUN apk update && apk add --no-cache \
+    python3 \
+    py3-pip \
+    bash \
+    openssl \
+    curl \
+    tzdata \
+    shadow \
+    su-exec \
+    dcron \
+    libffi-dev \
+    python3-dev \
+    openssl-dev \
+    gcc \
+    musl-dev \
+    libc-dev \
+    make; \
+    # 升级 pip
+    pip3 install --upgrade pip setuptools wheel; \
+    # 通过 pip 安装 certbot
+    pip3 install certbot certbot-nginx; \
+    # 创建 certbot 符号链接（确保在 PATH 中）
+    ln -s /usr/bin/python3 /usr/bin/python; \
+    # 清理缓存
+    rm -rf /var/cache/apk/* /tmp/* /root/.cache
+
+# 创建必要的目录
+RUN mkdir -p /etc/letsencrypt && \
+    mkdir -p /var/www/certbot && \
+    mkdir -p /etc/nginx/ssl && \
+    mkdir -p /usr/local/scripts && \
+    mkdir -p /etc/nginx/conf.d
+
+# 从构建阶段复制构建产物
+COPY --from=www-builder /app/dist/www/ /var/www/anyapi/
+COPY --from=docs-builder /app/dist/docs/ /var/www/docs/
+
+# 复制证书管理脚本
+COPY nginx/scripts/ /usr/local/scripts/
+RUN chmod +x /usr/local/scripts/*.sh
+
+# 复制默认的SSL参数配置
+COPY nginx/conf.d/ /etc/nginx/conf.d/
+
+# 设置证书自动续期（每天凌晨2点检查）
+RUN echo "0 2 * * * /usr/local/scripts/renew-cert.sh >> /var/log/cert-renew.log 2>&1" > /etc/crontabs/root
+
+# 暴露端口
+EXPOSE 80
+EXPOSE 443
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost/health-check || exit 1
+
+# 启动服务
+# CMD sh -c 'cron && nginx -g "daemon off;"'
+CMD sh -c 'crond && nginx -g "daemon off;"'

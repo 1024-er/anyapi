@@ -1,0 +1,5 @@
+:HL["/_next/static/css/bb0942d1a44f37cd.css","style"]
+:HL["/_next/static/media/13971731025ec697-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/a1ead154ff661e2f-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/4b49eaa6a535c63c.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"lang","param":{"type":"d","key":"vi","siblings":null},"prefetchHints":0,"slots":{"children":{"name":"docs","param":null,"prefetchHints":0,"slots":{"children":{"name":"slug","param":{"type":"oc","key":"ide/cline","siblings":null},"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}}}}}},"staleTime":300,"buildId":"96cjQBhXIR1C-B097wJWw"}
